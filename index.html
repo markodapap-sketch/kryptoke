@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KryptoKE — BSC Exchange</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+  :root {
+    --bg: #0b0e11;
+    --surface: #161a1f;
+    --surface2: #1e2329;
+    --border: #2b3139;
+    --green: #0ecb81;
+    --red: #f6465d;
+    --yellow: #f0b90b;
+    --text: #eaecef;
+    --muted: #848e9c;
+    --blue: #1890ff;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font: 'Inter', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; gap: 24px;
+    padding: 0 20px; height: 56px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-family: var(--font-mono); font-size: 18px; font-weight: 600; color: var(--yellow); letter-spacing: -0.5px; }
+  .logo span { color: var(--green); }
+  .nav-links { display: flex; gap: 20px; }
+  .nav-link { color: var(--muted); cursor: pointer; font-size: 13px; padding: 4px 0; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .nav-link:hover, .nav-link.active { color: var(--text); border-color: var(--yellow); }
+  .nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 6px 16px; border-radius: 4px; border: none; cursor: pointer; font-size: 13px; font-family: var(--font); font-weight: 500; transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.85; }
+  .btn-yellow { background: var(--yellow); color: #000; }
+  .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+  .btn-green { background: var(--green); color: #000; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-blue { background: var(--blue); color: #fff; }
+
+  /* LAYOUT */
+  .exchange-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr 300px;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+  }
+
+  /* MARKET BAR */
+  .market-bar {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 32px;
+    padding: 10px 16px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .market-pair { display: flex; flex-direction: column; }
+  .pair-name { font-size: 18px; font-weight: 600; font-family: var(--font-mono); }
+  .pair-price { font-size: 22px; font-weight: 600; color: var(--green); font-family: var(--font-mono); }
+  .pair-price.down { color: var(--red); }
+  .market-stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-label { color: var(--muted); font-size: 11px; }
+  .stat-value { font-family: var(--font-mono); font-size: 13px; }
+  .stat-value.up { color: var(--green); }
+  .stat-value.dn { color: var(--red); }
+
+  /* TOKEN LIST */
+  .token-list {
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .token-list-header { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .search-input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 6px 10px; color: var(--text);
+    font-family: var(--font); font-size: 12px; outline: none;
+  }
+  .search-input:focus { border-color: var(--yellow); }
+  .token-items { overflow-y: auto; flex: 1; }
+  .token-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .token-item:hover, .token-item.active { background: var(--surface2); }
+  .token-symbol { font-weight: 600; font-family: var(--font-mono); font-size: 12px; }
+  .token-name { color: var(--muted); font-size: 11px; margin-top: 1px; }
+  .token-price-col { text-align: right; }
+  .token-price-val { font-family: var(--font-mono); font-size: 12px; }
+  .token-change { font-size: 11px; }
+  .new-badge { background: var(--yellow); color: #000; font-size: 9px; padding: 1px 4px; border-radius: 2px; font-weight: 600; margin-left: 4px; }
+
+  /* CHART */
+  .chart-area { display: flex; flex-direction: column; overflow: hidden; }
+  #chart { flex: 1; min-height: 0; }
+  .chart-controls { display: flex; gap: 4px; padding: 8px 12px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .time-btn { padding: 3px 8px; background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; border-radius: 3px; font-family: var(--font-mono); }
+  .time-btn:hover, .time-btn.active { background: var(--surface2); color: var(--text); }
+
+  /* RIGHT PANEL */
+  .right-panel {
+    background: var(--surface); border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .panel-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .panel-tab {
+    flex: 1; padding: 10px; text-align: center; cursor: pointer;
+    font-size: 12px; color: var(--muted); border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .panel-tab:hover { color: var(--text); }
+  .panel-tab.active { color: var(--text); border-color: var(--yellow); }
+
+  /* SWAP FORM */
+  .swap-form { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .swap-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .token-input-wrap {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .token-input-wrap:focus-within { border-color: var(--yellow); }
+  .token-input {
+    width: 100%; background: none; border: none; color: var(--text);
+    font-family: var(--font-mono); font-size: 18px; outline: none;
+  }
+  .token-select-row { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .token-select-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--border); border: none; color: var(--text);
+    padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: var(--font);
+  }
+  .max-btn { background: none; border: 1px solid var(--yellow); color: var(--yellow); font-size: 10px; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-family: var(--font); }
+  .swap-arrow { text-align: center; color: var(--muted); cursor: pointer; font-size: 18px; transition: color 0.15s; }
+  .swap-arrow:hover { color: var(--yellow); }
+  .slippage-row { display: flex; gap: 6px; align-items: center; }
+  .slippage-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 3px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; font-family: var(--font); }
+  .slippage-btn.active { border-color: var(--yellow); color: var(--yellow); }
+  .route-info { background: var(--surface2); border-radius: 4px; padding: 8px 10px; font-size: 11px; color: var(--muted); }
+  .route-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .route-row:last-child { margin-bottom: 0; }
+
+  /* DEPOSIT MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; display: none;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    width: 420px; max-width: 95vw; padding: 24px;
+  }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-close { cursor: pointer; color: var(--muted); font-size: 20px; background: none; border: none; color: var(--muted); }
+  .deposit-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+  .deposit-tab { flex: 1; padding: 8px; text-align: center; cursor: pointer; font-size: 12px; color: var(--muted); background: none; border: none; font-family: var(--font); }
+  .deposit-tab.active { background: var(--yellow); color: #000; font-weight: 600; }
+  .form-group { margin-bottom: 12px; }
+  .form-label { font-size: 11px; color: var(--muted); margin-bottom: 5px; display: block; }
+  .form-input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    padding: 10px 12px; color: var(--text); font-family: var(--font-mono); font-size: 13px; outline: none;
+  }
+  .form-input:focus { border-color: var(--yellow); }
+  .address-box {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    padding: 12px; font-family: var(--font-mono); font-size: 12px; word-break: break-all;
+    cursor: pointer; color: var(--yellow);
+  }
+  .address-box:hover { border-color: var(--yellow); }
+  .copy-hint { font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .alert { padding: 10px 12px; border-radius: 4px; font-size: 12px; margin-bottom: 12px; }
+  .alert-warn { background: rgba(240,185,11,0.1); border: 1px solid rgba(240,185,11,0.3); color: var(--yellow); }
+  .alert-success { background: rgba(14,203,129,0.1); border: 1px solid rgba(14,203,129,0.3); color: var(--green); }
+  .alert-err { background: rgba(246,70,93,0.1); border: 1px solid rgba(246,70,93,0.3); color: var(--red); }
+
+  /* WALLET CONNECT */
+  .connect-options { display: flex; flex-direction: column; gap: 10px; }
+  .wallet-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; transition: border-color 0.15s;
+  }
+  .wallet-option:hover { border-color: var(--yellow); }
+  .wallet-icon { width: 36px; height: 36px; border-radius: 8px; object-fit: contain; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .wallet-name { font-weight: 500; }
+  .wallet-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* TRADE HISTORY */
+  .trade-history { overflow-y: auto; flex: 1; }
+  .trade-row { display: flex; justify-content: space-between; padding: 6px 12px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 11px; }
+  .trade-buy { color: var(--green); }
+  .trade-sell { color: var(--red); }
+
+  /* KYC BANNER */
+  .kyc-banner { background: rgba(240,185,11,0.08); border-bottom: 1px solid rgba(240,185,11,0.3); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--yellow); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px 16px; font-size: 13px; max-width: 320px;
+    transform: translateY(80px); opacity: 0; transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (max-width: 900px) {
+    .exchange-layout { grid-template-columns: 1fr; grid-template-rows: auto auto auto; height: auto; }
+    .token-list { display: none; }
+    .right-panel { border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Krypto<span>KE</span></div>
+  <div class="nav-links">
+    <div class="nav-link active">Trade</div>
+    <div class="nav-link" onclick="openModal('deposit')">Deposit</div>
+    <div class="nav-link">Portfolio</div>
+  </div>
+  <div class="nav-right">
+    <div id="kes-balance" style="font-family:var(--font-mono);font-size:12px;color:var(--muted)">KES 0.00</div>
+    <button class="btn btn-outline" id="connect-btn" onclick="openModal('connect')">Connect Wallet</button>
+    <button class="btn btn-yellow" id="deposit-btn" onclick="openModal('deposit')">Deposit</button>
+  </div>
+</nav>
+
+<!-- KYC BANNER -->
+<div class="kyc-banner" id="kyc-banner" style="display:none">
+  Complete identity verification to unlock full trading limits.
+  <button class="btn btn-yellow" style="font-size:11px;padding:4px 12px">Verify Now</button>
+</div>
+
+<!-- EXCHANGE LAYOUT -->
+<div class="exchange-layout">
+
+  <!-- TOKEN LIST -->
+  <div class="token-list">
+    <div class="token-list-header">
+      <input class="search-input" placeholder="Search tokens..." id="token-search" oninput="filterTokens(this.value)">
+    </div>
+    <div class="token-items" id="token-items">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- CHART AREA -->
+  <div class="chart-area">
+    <div class="market-bar" id="market-bar">
+      <div class="market-pair">
+        <div class="pair-name" id="pair-name">BNB/USDT</div>
+        <div class="pair-price" id="pair-price">$0.00</div>
+      </div>
+      <div class="market-stat"><div class="stat-label">24h Change</div><div class="stat-value" id="stat-change">—</div></div>
+      <div class="market-stat"><div class="stat-label">24h Volume</div><div class="stat-value" id="stat-vol">—</div></div>
+      <div class="market-stat"><div class="stat-label">Liquidity</div><div class="stat-value" id="stat-liq">—</div></div>
+      <div class="market-stat"><div class="stat-label">KES Price</div><div class="stat-value" id="stat-kes">—</div></div>
+    </div>
+    <div class="chart-controls">
+      <button class="time-btn" onclick="setInterval('15m', this)">15m</button>
+      <button class="time-btn active" onclick="setInterval('1h', this)">1h</button>
+      <button class="time-btn" onclick="setInterval('4h', this)">4h</button>
+      <button class="time-btn" onclick="setInterval('1d', this)">1D</button>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted);align-self:center" id="chart-source">PancakeSwap V2</div>
+    </div>
+    <div id="chart" style="flex:1"></div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="panel-tabs">
+      <div class="panel-tab active" onclick="switchPanel('swap', this)">Swap</div>
+      <div class="panel-tab" onclick="switchPanel('trades', this)">Trades</div>
+      <div class="panel-tab" onclick="switchPanel('info', this)">Info</div>
+    </div>
+
+    <!-- SWAP PANEL -->
+    <div id="panel-swap" style="overflow-y:auto;flex:1">
+      <div class="swap-form">
+        <div>
+          <div class="swap-label">
+            <span>You Pay</span>
+            <span id="balance-in" style="cursor:pointer" onclick="setMax()">Balance: —</span>
+          </div>
+          <div class="token-input-wrap">
+            <input class="token-input" id="amount-in" type="number" placeholder="0.00" oninput="onAmountChange()">
+            <div class="token-select-row">
+              <button class="token-select-btn" onclick="openTokenSelect('in')" id="token-in-btn">BNB ▾</button>
+              <button class="max-btn" onclick="setMax()">MAX</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-arrow" onclick="flipTokens()">⇅</div>
+
+        <div>
+          <div class="swap-label">
+            <span>You Receive</span>
+            <span id="balance-out">Balance: —</span>
+          </div>
+          <div class="token-input-wrap">
+            <input class="token-input" id="amount-out" type="number" placeholder="0.00" readonly>
+            <div class="token-select-row">
+              <button class="token-select-btn" onclick="openTokenSelect('out')" id="token-out-btn">USDT ▾</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="swap-label"><span>Slippage</span></div>
+          <div class="slippage-row">
+            <button class="slippage-btn active" onclick="setSlippage(0.1, this)">0.1%</button>
+            <button class="slippage-btn" onclick="setSlippage(0.5, this)">0.5%</button>
+            <button class="slippage-btn" onclick="setSlippage(1, this)">1%</button>
+            <button class="slippage-btn" onclick="setSlippage(5, this)">5%</button>
+          </div>
+        </div>
+
+        <div class="route-info" id="route-info" style="display:none">
+          <div class="route-row"><span>Rate</span><span id="route-rate">—</span></div>
+          <div class="route-row"><span>Price Impact</span><span id="route-impact">—</span></div>
+          <div class="route-row"><span>Min Received</span><span id="route-min">—</span></div>
+          <div class="route-row"><span>Route</span><span id="route-path">—</span></div>
+          <div class="route-row"><span>Fee (0.25%)</span><span id="route-fee">—</span></div>
+        </div>
+
+        <button class="btn btn-green" id="swap-btn" onclick="doSwap()" style="width:100%;padding:12px;font-size:14px">
+          Connect Wallet to Swap
+        </button>
+
+        <div id="swap-status" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- TRADES PANEL -->
+    <div id="panel-trades" style="display:none;overflow-y:auto;flex:1">
+      <div style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
+        <span>Price (USD)</span><span>Amount</span><span>Time</span>
+      </div>
+      <div class="trade-history" id="trade-history-list"></div>
+    </div>
+
+    <!-- INFO PANEL -->
+    <div id="panel-info" style="display:none;padding:14px;overflow-y:auto;flex:1">
+      <div style="font-size:12px;color:var(--muted);line-height:1.8" id="token-info-panel">
+        Select a token to view details.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEPOSIT MODAL -->
+<div class="modal-overlay" id="modal-deposit">
+  <div class="modal">
+    <div class="modal-title">
+      Deposit Funds
+      <button class="modal-close" onclick="closeModal('deposit')">×</button>
+    </div>
+    <div class="deposit-tabs">
+      <button class="deposit-tab active" onclick="switchDeposit('mpesa', this)">M-Pesa</button>
+      <button class="deposit-tab" onclick="switchDeposit('wallet', this)">Crypto Deposit</button>
+      <button class="deposit-tab" onclick="switchDeposit('connect', this)">Connect Wallet</button>
+    </div>
+
+    <!-- M-Pesa -->
+    <div id="deposit-mpesa">
+      <div class="alert alert-warn">KES balance is used to buy crypto on the platform. Minimum deposit: KES 10.</div>
+      <div class="form-group">
+        <label class="form-label">Safaricom Phone Number</label>
+        <input class="form-input" id="mpesa-phone" placeholder="0712345678" type="tel">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount (KES)</label>
+        <input class="form-input" id="mpesa-amount" placeholder="500" type="number" min="10">
+      </div>
+      <button class="btn btn-yellow" style="width:100%;padding:12px" onclick="initMpesaDeposit()">Send STK Push</button>
+      <div id="mpesa-status" style="margin-top:10px;display:none"></div>
+    </div>
+
+    <!-- Crypto deposit -->
+    <div id="deposit-wallet" style="display:none">
+      <div class="alert alert-warn">Send only BEP-20 tokens (BSC network) to this address. Other networks will result in loss of funds.</div>
+      <div class="form-group">
+        <label class="form-label">Your BSC Deposit Address</label>
+        <div class="address-box" id="deposit-address" onclick="copyAddress()">Login to see your address</div>
+        <div class="copy-hint">Click to copy. BSC (BEP-20) network only.</div>
+      </div>
+    </div>
+
+    <!-- Connect wallet -->
+    <div id="deposit-connect" style="display:none">
+      <div class="connect-options">
+        <div class="wallet-option" onclick="connectMetaMask()">
+          <div class="wallet-icon">🦊</div>
+          <div>
+            <div class="wallet-name">MetaMask</div>
+            <div class="wallet-desc">Connect your browser wallet</div>
+          </div>
+        </div>
+        <div class="wallet-option" onclick="connectWalletConnect()">
+          <div class="wallet-icon">🔗</div>
+          <div>
+            <div class="wallet-name">WalletConnect</div>
+            <div class="wallet-desc">Scan with mobile wallet</div>
+          </div>
+        </div>
+        <div class="wallet-option" onclick="connectTrustWallet()">
+          <div class="wallet-icon">🛡️</div>
+          <div>
+            <div class="wallet-name">Trust Wallet</div>
+            <div class="wallet-desc">Mobile & extension</div>
+          </div>
+        </div>
+      </div>
+      <div id="connect-status" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="modal-auth">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="auth-title">Login</span>
+      <button class="modal-close" onclick="closeModal('auth')">×</button>
+    </div>
+    <div class="deposit-tabs">
+      <button class="deposit-tab active" onclick="switchAuth('login', this)">Login</button>
+      <button class="deposit-tab" onclick="switchAuth('register', this)">Register</button>
+    </div>
+    <div id="auth-login">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="login-email" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-password" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-yellow" style="width:100%;padding:12px;margin-top:4px" onclick="doLogin()">Login</button>
+      <div id="login-status" style="margin-top:10px"></div>
+    </div>
+    <div id="auth-register" style="display:none">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Phone (Safaricom)</label><input class="form-input" id="reg-phone" type="tel" placeholder="0712345678"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="reg-password" type="password" placeholder="Min 8 characters"></div>
+      <button class="btn btn-yellow" style="width:100%;padding:12px;margin-top:4px" onclick="doRegister()">Create Account</button>
+      <div id="reg-status" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOKEN SELECT MODAL -->
+<div class="modal-overlay" id="modal-token-select">
+  <div class="modal" style="max-height:80vh;display:flex;flex-direction:column">
+    <div class="modal-title">Select Token <button class="modal-close" onclick="closeModal('token-select')">×</button></div>
+    <input class="search-input" id="token-modal-search" placeholder="Search name or paste address..." oninput="filterModalTokens(this.value)" style="margin-bottom:12px">
+    <div id="token-modal-list" style="overflow-y:auto;flex:1;margin:0 -24px;padding:0 24px"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────
+const API = 'https://xpdd140367.execute-api.ap-south-1.amazonaws.com/prod'; // e.g. https://xyz.execute-api.ap-south-1.amazonaws.com/prod
+const KES_PER_USD = 129;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDfGRHGt6gg0Fs76XLRmGqGMD3qZTgg12E",
+  authDomain: "manmachine-bd039.firebaseapp.com",
+  databaseURL: "https://manmachine-bd039-default-rtdb.firebaseio.com",
+  projectId: "manmachine-bd039",
+};
+
+// ─── STATE ────────────────────────────────────────────────
+let state = {
+  tokens: [],
+  selectedToken: null,
+  tokenIn: { symbol: 'BNB', address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', decimals: 18 },
+  tokenOut: { symbol: 'USDT', address: '0x55d398326f99059fF775485246999027B3197955', decimals: 18 },
+  slippage: 0.1,
+  walletAddress: null,
+  authToken: localStorage.getItem('dex_token'),
+  user: JSON.parse(localStorage.getItem('dex_user') || 'null'),
+  chart: null,
+  candleSeries: null,
+  quoteTimer: null,
+};
+
+// ─── INIT ─────────────────────────────────────────────────
+window.addEventListener('load', async () => {
+  initChart();
+  loadTokens();
+  if (state.authToken) updateAuthUI();
+  if (state.user?.custodialAddress) {
+    document.getElementById('deposit-address').textContent = state.user.custodialAddress;
+  }
+});
+
+// ─── CHART ────────────────────────────────────────────────
+function initChart() {
+  const el = document.getElementById('chart');
+  state.chart = LightweightCharts.createChart(el, {
+    layout: { background: { color: '#0b0e11' }, textColor: '#848e9c' },
+    grid: { vertLines: { color: '#161a1f' }, horzLines: { color: '#161a1f' } },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale: { borderColor: '#2b3139' },
+    timeScale: { borderColor: '#2b3139', timeVisible: true },
+    width: el.offsetWidth,
+    height: el.offsetHeight || 400,
+  });
+  state.candleSeries = state.chart.addCandlestickSeries({
+    upColor: '#0ecb81', downColor: '#f6465d',
+    borderUpColor: '#0ecb81', borderDownColor: '#f6465d',
+    wickUpColor: '#0ecb81', wickDownColor: '#f6465d',
+  });
+
+  new ResizeObserver(() => {
+    state.chart.applyOptions({ width: el.offsetWidth, height: el.offsetHeight });
+  }).observe(el);
+}
+
+async function loadChart(tokenAddress, interval = 'hour') {
+  try {
+    const r = await apiFetch(`/api/market/candles/${tokenAddress}?interval=${interval}&limit=96`);
+    if (r.candles?.length) {
+      state.candleSeries.setData(r.candles.map(c => ({
+        time: c.time,
+        open: c.open, high: c.high, low: c.low, close: c.close,
+      })));
+    }
+  } catch {}
+}
+
+function setInterval(interval, btn) {
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const map = { '15m': 'hour', '1h': 'hour', '4h': 'hour', '1d': 'day' };
+  if (state.selectedToken) loadChart(state.selectedToken.address, map[interval]);
+}
+
+// ─── TOKEN LIST ───────────────────────────────────────────
+async function loadTokens() {
+  try {
+    const r = await apiFetch('/api/tokens');
+    state.tokens = r.tokens || [];
+    renderTokenList(state.tokens);
+    if (state.tokens.length > 0) selectToken(state.tokens[0]);
+  } catch {}
+}
+
+function renderTokenList(tokens) {
+  const el = document.getElementById('token-items');
+  el.innerHTML = tokens.map(t => `
+    <div class="token-item ${state.selectedToken?.address === t.address ? 'active' : ''}"
+         onclick="selectToken(${JSON.stringify(t).replace(/"/g, '&quot;')})">
+      <div>
+        <div class="token-symbol">${t.symbol} ${t.isNew ? '<span class="new-badge">NEW</span>' : ''}</div>
+        <div class="token-name">${t.name}</div>
+      </div>
+      <div class="token-price-col">
+        <div class="token-price-val">$${formatPrice(t.price || 0)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterTokens(q) {
+  const filtered = state.tokens.filter(t =>
+    t.symbol.toLowerCase().includes(q.toLowerCase()) ||
+    t.name.toLowerCase().includes(q.toLowerCase())
+  );
+  renderTokenList(filtered);
+}
+
+async function selectToken(token) {
+  state.selectedToken = token;
+  state.tokenOut = { symbol: token.symbol, address: token.address, decimals: token.decimals || 18 };
+  document.getElementById('token-out-btn').textContent = token.symbol + ' ▾';
+  document.getElementById('pair-name').textContent = `${token.symbol}/USDT`;
+
+  renderTokenList(state.tokens);
+  loadChart(token.address);
+  updateMarketBar(token);
+  subscribeToTrades(token.address);
+}
+
+async function updateMarketBar(token) {
+  try {
+    const r = await apiFetch(`/api/market/price/${token.address}`);
+    const price = r.price || 0;
+    const kesPrice = price * KES_PER_USD;
+    document.getElementById('pair-price').textContent = '$' + formatPrice(price);
+    document.getElementById('stat-liq').textContent = '$' + formatNum(r.liquidity || 0);
+    document.getElementById('stat-kes').textContent = 'KES ' + formatPrice(kesPrice);
+    document.getElementById('stat-change').textContent = '—';
+    document.getElementById('stat-vol').textContent = '—';
+  } catch {}
+}
+
+// ─── SWAP ─────────────────────────────────────────────────
+let quoteDebounce = null;
+function onAmountChange() {
+  clearTimeout(quoteDebounce);
+  quoteDebounce = setTimeout(fetchQuote, 600);
+}
+
+async function fetchQuote() {
+  const amountIn = parseFloat(document.getElementById('amount-in').value);
+  if (!amountIn || amountIn <= 0) {
+    document.getElementById('amount-out').value = '';
+    document.getElementById('route-info').style.display = 'none';
+    return;
+  }
+  try {
+    const r = await apiFetch('/api/trade/quote', {
+      method: 'POST',
+      body: JSON.stringify({
+        tokenIn: state.tokenIn.address,
+        tokenOut: state.tokenOut.address,
+        amountIn,
+        decimalsIn: state.tokenIn.decimals,
+      }),
+    });
+    if (r.amountOut) {
+      document.getElementById('amount-out').value = parseFloat(r.amountOut).toFixed(6);
+      const rate = parseFloat(r.amountOut) / amountIn;
+      document.getElementById('route-rate').textContent = `1 ${state.tokenIn.symbol} = ${rate.toFixed(6)} ${state.tokenOut.symbol}`;
+      document.getElementById('route-impact').textContent = '< 0.01%';
+      document.getElementById('route-min').textContent = (parseFloat(r.amountOut) * (1 - state.slippage / 100)).toFixed(6) + ' ' + state.tokenOut.symbol;
+      document.getElementById('route-fee').textContent = (amountIn * 0.0025).toFixed(6) + ' ' + state.tokenIn.symbol;
+      const pathSymbols = r.path?.map(addr => symbolFromAddr(addr)).join(' → ') || '—';
+      document.getElementById('route-path').textContent = pathSymbols;
+      document.getElementById('route-info').style.display = 'block';
+    }
+  } catch {}
+}
+
+async function doSwap() {
+  if (!state.walletAddress && !state.authToken) {
+    openModal('auth');
+    return;
+  }
+  if (!state.walletAddress) {
+    openModal('deposit');
+    return;
+  }
+  const amountIn = parseFloat(document.getElementById('amount-in').value);
+  if (!amountIn) return showToast('Enter an amount', 'error');
+
+  document.getElementById('swap-btn').textContent = 'Building transaction...';
+  document.getElementById('swap-btn').disabled = true;
+
+  try {
+    const r = await apiFetch('/api/trade/build', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + state.authToken },
+      body: JSON.stringify({
+        tokenIn: state.tokenIn.address,
+        tokenOut: state.tokenOut.address,
+        amountIn,
+        decimalsIn: state.tokenIn.decimals,
+        slippage: state.slippage,
+        walletAddress: state.walletAddress,
+      }),
+    });
+
+    if (!window.ethereum) return showToast('No wallet detected', 'error');
+
+    // Send transaction via MetaMask
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: state.walletAddress,
+        to: r.to,
+        data: r.data,
+        value: '0x' + BigInt(r.value || 0).toString(16),
+        gas: '0x' + parseInt(r.gasLimit).toString(16),
+        chainId: '0x38', // BSC
+      }],
+    });
+
+    showToast('Transaction sent!', 'success');
+
+    // Confirm with backend
+    await apiFetch('/api/trade/confirm', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + state.authToken },
+      body: JSON.stringify({ tradeId: r.tradeId, txHash, amountOut: document.getElementById('amount-out').value }),
+    });
+
+    showToast(`Swap confirmed: ${txHash.slice(0, 10)}...`, 'success');
+  } catch (e) {
+    showToast(e.message || 'Swap failed', 'error');
+  } finally {
+    document.getElementById('swap-btn').textContent = 'Swap';
+    document.getElementById('swap-btn').disabled = false;
+  }
+}
+
+function flipTokens() {
+  [state.tokenIn, state.tokenOut] = [state.tokenOut, state.tokenIn];
+  document.getElementById('token-in-btn').textContent = state.tokenIn.symbol + ' ▾';
+  document.getElementById('token-out-btn').textContent = state.tokenOut.symbol + ' ▾';
+  document.getElementById('amount-in').value = document.getElementById('amount-out').value;
+  document.getElementById('amount-out').value = '';
+  fetchQuote();
+}
+
+function setSlippage(val, btn) {
+  state.slippage = val;
+  document.querySelectorAll('.slippage-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setMax() { /* would fetch wallet balance and set */ }
+
+// ─── WALLET CONNECT ───────────────────────────────────────
+async function connectMetaMask() {
+  if (!window.ethereum) return showStatus('connect-status', 'MetaMask not found. Install it at metamask.io', 'error');
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x38' }], // BSC
+    });
+  } catch {
+    await window.ethereum.request({
+      method: 'wallet_addEthereumChain',
+      params: [{
+        chainId: '0x38',
+        chainName: 'BNB Smart Chain',
+        nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+        rpcUrls: ['https://bsc-dataseed1.binance.org'],
+        blockExplorerUrls: ['https://bscscan.com'],
+      }],
+    });
+  }
+  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  state.walletAddress = accounts[0];
+  document.getElementById('connect-btn').textContent = state.walletAddress.slice(0, 6) + '...' + state.walletAddress.slice(-4);
+  document.getElementById('swap-btn').textContent = 'Swap';
+  showToast('MetaMask connected', 'success');
+  closeModal('deposit');
+}
+
+async function connectTrustWallet() {
+  // Trust Wallet uses same MetaMask API
+  await connectMetaMask();
+}
+
+async function connectWalletConnect() {
+  showStatus('connect-status', 'WalletConnect coming soon — use MetaMask for now', 'warn');
+}
+
+// ─── M-PESA DEPOSIT ───────────────────────────────────────
+async function initMpesaDeposit() {
+  if (!state.authToken) { closeModal('deposit'); openModal('auth'); return; }
+  const phone = document.getElementById('mpesa-phone').value;
+  const amount = parseFloat(document.getElementById('mpesa-amount').value);
+  if (!phone || !amount) return showStatus('mpesa-status', 'Enter phone and amount', 'error');
+
+  showStatus('mpesa-status', 'Sending STK push...', 'warn');
+  try {
+    const r = await apiFetch('/api/mpesa/deposit', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + state.authToken },
+      body: JSON.stringify({ phone, amount }),
+    });
+    showStatus('mpesa-status', `STK sent! Check your phone. Ref: ${r.txId?.slice(0, 8)}`, 'success');
+    pollDepositStatus(r.txId);
+  } catch (e) {
+    showStatus('mpesa-status', e.message, 'error');
+  }
+}
+
+async function pollDepositStatus(txId) {
+  let attempts = 0;
+  const poll = setInterval(async () => {
+    if (attempts++ > 20) return clearInterval(poll);
+    try {
+      const r = await apiFetch(`/api/mpesa/status/${txId}`, { headers: { Authorization: 'Bearer ' + state.authToken } });
+      if (r.status === 'completed') {
+        clearInterval(poll);
+        showStatus('mpesa-status', `KES ${r.amount} deposited! Code: ${r.mpesaCode}`, 'success');
+        showToast(`KES ${r.amount} deposited successfully`, 'success');
+        fetchKesBalance();
+      } else if (r.status === 'failed') {
+        clearInterval(poll);
+        showStatus('mpesa-status', 'Payment failed or cancelled', 'error');
+      }
+    } catch {}
+  }, 5000);
+}
+
+async function fetchKesBalance() {
+  if (!state.authToken) return;
+  try {
+    const r = await apiFetch('/api/wallet/info', { headers: { Authorization: 'Bearer ' + state.authToken } });
+    document.getElementById('kes-balance').textContent = `KES ${(r.kesBalance || 0).toLocaleString()}`;
+  } catch {}
+}
+
+// ─── AUTH ─────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) return showStatus('login-status', 'Fill all fields', 'error');
+  try {
+    const r = await apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+    state.authToken = r.token;
+    state.user = r.user;
+    localStorage.setItem('dex_token', r.token);
+    localStorage.setItem('dex_user', JSON.stringify(r.user));
+    closeModal('auth');
+    updateAuthUI();
+    showToast('Logged in', 'success');
+  } catch (e) {
+    showStatus('login-status', e.message, 'error');
+  }
+}
+
+async function doRegister() {
+  const email = document.getElementById('reg-email').value;
+  const phone = document.getElementById('reg-phone').value;
+  const password = document.getElementById('reg-password').value;
+  if (!email || !password) return showStatus('reg-status', 'Fill all fields', 'error');
+  if (password.length < 8) return showStatus('reg-status', 'Password must be 8+ characters', 'error');
+  try {
+    const r = await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, phone, password }) });
+    state.authToken = r.token;
+    state.user = r.user;
+    localStorage.setItem('dex_token', r.token);
+    localStorage.setItem('dex_user', JSON.stringify(r.user));
+
+    // Show mnemonic ONCE
+    if (r.user.mnemonic) {
+      alert(`IMPORTANT: Save your recovery phrase. This is shown ONCE:\n\n${r.user.mnemonic}\n\nYour wallet address: ${r.user.custodialAddress}`);
+    }
+    closeModal('auth');
+    updateAuthUI();
+    showToast('Account created', 'success');
+  } catch (e) {
+    showStatus('reg-status', e.message, 'error');
+  }
+}
+
+function updateAuthUI() {
+  if (state.user) {
+    document.getElementById('connect-btn').textContent = state.user.email.split('@')[0];
+    document.getElementById('deposit-address').textContent = state.user.custodialAddress || 'Loading...';
+    document.getElementById('kyc-banner').style.display = state.user.kycStatus === 'pending' ? 'flex' : 'none';
+    fetchKesBalance();
+  }
+}
+
+// ─── REALTIME TRADES ──────────────────────────────────────
+let firebaseApp, firebaseDb;
+function initFirebase() {
+  if (firebaseApp) return;
+  try {
+    firebaseApp = firebase.initializeApp(firebaseConfig);
+    firebaseDb = firebase.database();
+  } catch {}
+}
+
+function subscribeToTrades(tokenAddress) {
+  initFirebase();
+  if (!firebaseDb) return;
+  const ref = firebaseDb.ref(`trades/${tokenAddress}`).limitToLast(50);
+  ref.on('value', snap => {
+    const trades = [];
+    snap.forEach(child => trades.push(child.val()));
+    renderTrades(trades.reverse());
+  });
+}
+
+function renderTrades(trades) {
+  const el = document.getElementById('trade-history-list');
+  el.innerHTML = trades.map(t => {
+    const time = new Date(t.ts).toTimeString().slice(0, 8);
+    return `<div class="trade-row">
+      <span class="trade-buy">$${formatPrice(t.price)}</span>
+      <span>${parseFloat(t.amountIn).toFixed(4)}</span>
+      <span style="color:var(--muted)">${time}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── PANELS & MODALS ─────────────────────────────────────
+function switchPanel(name, btn) {
+  ['swap', 'trades', 'info'].forEach(p => {
+    document.getElementById('panel-' + p).style.display = p === name ? '' : 'none';
+  });
+  document.querySelectorAll('.panel-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function openModal(name) { document.getElementById('modal-' + name).classList.add('open'); }
+function closeModal(name) { document.getElementById('modal-' + name).classList.remove('open'); }
+
+function switchDeposit(tab, btn) {
+  ['mpesa', 'wallet', 'connect'].forEach(t => {
+    document.getElementById('deposit-' + t).style.display = t === tab ? '' : 'none';
+  });
+  document.querySelectorAll('.deposit-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function switchAuth(tab, btn) {
+  document.getElementById('auth-login').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('auth-register').style.display = tab === 'register' ? '' : 'none';
+  document.querySelectorAll('.deposit-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+let tokenSelectTarget = 'in';
+function openTokenSelect(target) {
+  tokenSelectTarget = target;
+  filterModalTokens('');
+  openModal('token-select');
+}
+
+function filterModalTokens(q) {
+  const filtered = state.tokens.filter(t =>
+    !q || t.symbol.toLowerCase().includes(q.toLowerCase()) || t.name.toLowerCase().includes(q.toLowerCase())
+  );
+  const el = document.getElementById('token-modal-list');
+  el.innerHTML = filtered.map(t => `
+    <div class="token-item" onclick="selectModalToken(${JSON.stringify(t).replace(/"/g, '&quot;')})">
+      <div><div class="token-symbol">${t.symbol}</div><div class="token-name">${t.name}</div></div>
+      <div class="token-price-col"><div class="token-price-val">$${formatPrice(t.price || 0)}</div></div>
+    </div>
+  `).join('');
+}
+
+function selectModalToken(token) {
+  if (tokenSelectTarget === 'in') {
+    state.tokenIn = { symbol: token.symbol, address: token.address, decimals: token.decimals || 18 };
+    document.getElementById('token-in-btn').textContent = token.symbol + ' ▾';
+  } else {
+    state.tokenOut = { symbol: token.symbol, address: token.address, decimals: token.decimals || 18 };
+    document.getElementById('token-out-btn').textContent = token.symbol + ' ▾';
+    selectToken(token);
+  }
+  closeModal('token-select');
+  fetchQuote();
+}
+
+// ─── UTILS ────────────────────────────────────────────────
+async function apiFetch(path, options = {}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function formatPrice(n) {
+  if (n >= 1) return n.toLocaleString('en', { maximumFractionDigits: 4 });
+  if (n > 0.0001) return n.toFixed(6);
+  return n.toExponential(4);
+}
+
+function formatNum(n) {
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
+  return n.toFixed(2);
+}
+
+function symbolFromAddr(addr) {
+  const found = state.tokens.find(t => t.address.toLowerCase() === addr.toLowerCase());
+  return found?.symbol || addr.slice(0, 6) + '...';
+}
+
+function copyAddress() {
+  const addr = document.getElementById('deposit-address').textContent;
+  navigator.clipboard.writeText(addr);
+  showToast('Address copied', 'success');
+}
+
+function showToast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function showStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.className = 'alert alert-' + (type === 'success' ? 'success' : type === 'error' ? 'err' : 'warn');
+  el.textContent = msg;
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// Open login modal if not authed and trying to use deposit
+document.getElementById('connect-btn').addEventListener('click', () => {
+  if (!state.authToken) openModal('auth');
+});
+</script>
+</body>
+</html>
