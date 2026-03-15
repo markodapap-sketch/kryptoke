@@ -1,7 +1,4 @@
-// inject.js — replaces %%PLACEHOLDER%% values in index.html
-// Works on Windows (CRLF) and Linux (LF) — no sed needed
-const fs = require('fs');
-
+﻿const fs = require('fs');
 const file = 'index.html';
 let html = fs.readFileSync(file, 'utf8');
 
@@ -16,13 +13,12 @@ const replacements = {
 let missing = false;
 for (const [placeholder, value] of Object.entries(replacements)) {
   if (!value) {
-    console.error(`ERROR: Missing env var for ${placeholder}`);
+    console.error('MISSING SECRET: ' + placeholder);
     missing = true;
     continue;
   }
-  const count = (html.match(new RegExp(placeholder.replace(/[%%]/g, '%'), 'g')) || []).length;
-  html = html.replaceAll(placeholder, value);
-  console.log(`✓ Replaced ${placeholder} (${count} occurrence${count !== 1 ? 's' : ''})`);
+  html = html.split(placeholder).join(value);
+  console.log('Replaced: ' + placeholder + ' -> ' + value.slice(0, 30) + '...');
 }
 
 if (missing) {
@@ -30,4 +26,4 @@ if (missing) {
 }
 
 fs.writeFileSync(file, html, 'utf8');
-console.log('✓ index.html injected successfully');
+console.log('inject.js done');
