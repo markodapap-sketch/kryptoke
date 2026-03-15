@@ -1,0 +1,15 @@
+{
+  "name": "kryptoke",
+  "version": "1.0.0",
+  "description": "BSC crypto exchange with M-Pesa deposits, wallet connect, and new token whitelisting. Built on AWS Lambda + Firebase + GitHub Pages.",
+  "main": "generate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ethers": "^6.16.0"
+  }
+}

@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KryptoKE — Trade Crypto with M-Pesa</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+:root {
+  --bg:       #080b0f;
+  --surface:  #0f1318;
+  --s2:       #161c23;
+  --s3:       #1c242d;
+  --border:   #242d38;
+  --border2:  #2d3847;
+  --green:    #00d68f;
+  --green2:   #00a86b;
+  --red:      #f05454;
+  --yellow:   #f5c518;
+  --blue:     #4096ff;
+  --text:     #e8edf2;
+  --muted:    #7a8899;
+  --muted2:   #4a5568;
+  --font:     'Space Grotesk', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
+  --radius:   8px;
+  --nav-h:    56px;
+  --tab-h:    44px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 14px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── Nav ───────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--nav-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 16px;
+}
+.logo {
+  font-family: var(--mono); font-size: 17px; font-weight: 600;
+  color: var(--yellow); letter-spacing: -0.5px; flex-shrink: 0;
+}
+.logo em { color: var(--green); font-style: normal; }
+.nav-center {
+  display: flex; gap: 4px; margin: 0 auto;
+}
+.nav-link {
+  padding: 6px 12px; border-radius: 6px;
+  color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 500;
+  transition: all 0.15s; white-space: nowrap;
+}
+.nav-link:hover { color: var(--text); background: var(--s2); }
+.nav-link.active { color: var(--text); background: var(--s3); }
+.nav-right {
+  display: flex; gap: 8px; align-items: center; flex-shrink: 0;
+}
+.kes-display {
+  font-family: var(--mono); font-size: 12px; color: var(--green);
+  background: rgba(0,214,143,0.08); border: 1px solid rgba(0,214,143,0.2);
+  padding: 4px 10px; border-radius: 6px; display: none;
+}
+.rate-display {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  display: none;
+}
+.btn {
+  padding: 7px 14px; border-radius: 6px; border: none;
+  cursor: pointer; font-size: 12px; font-family: var(--font); font-weight: 600;
+  transition: all 0.15s; white-space: nowrap;
+}
+.btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-yellow { background: var(--yellow); color: #000; }
+.btn-green  { background: var(--green);  color: #000; }
+.btn-red    { background: var(--red);    color: #fff; }
+.btn-outline {
+  background: transparent; border: 1px solid var(--border2);
+  color: var(--text);
+}
+.btn-ghost {
+  background: var(--s2); border: 1px solid var(--border);
+  color: var(--muted);
+}
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+
+/* ── KYC Banner ────────────────────────────────────────────── */
+.kyc-banner {
+  background: rgba(245,197,24,0.07);
+  border-bottom: 1px solid rgba(245,197,24,0.2);
+  padding: 8px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--yellow); gap: 12px;
+}
+
+/* ── Main layout ───────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr 320px;
+  height: calc(100vh - var(--nav-h));
+  overflow: hidden;
+}
+
+/* ── Token sidebar ─────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-search {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.search-input {
+  width: 100%;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 7px 10px;
+  color: var(--text); font-family: var(--font); font-size: 12px; outline: none;
+}
+.search-input:focus { border-color: var(--yellow); }
+.search-input::placeholder { color: var(--muted2); }
+
+.sidebar-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+}
+.s-tab {
+  flex: 1; padding: 8px; text-align: center; cursor: pointer;
+  font-size: 11px; color: var(--muted); border-bottom: 2px solid transparent;
+  transition: all 0.15s; font-weight: 500;
+}
+.s-tab.active { color: var(--yellow); border-color: var(--yellow); }
+
+.token-list { overflow-y: auto; flex: 1; }
+.token-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s; gap: 8px;
+}
+.token-item:hover  { background: var(--s2); }
+.token-item.active { background: var(--s3); }
+.token-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--s3); display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--yellow); flex-shrink: 0;
+  font-family: var(--mono);
+}
+.token-meta { flex: 1; min-width: 0; }
+.token-symbol {
+  font-weight: 600; font-family: var(--mono); font-size: 12px;
+  display: flex; align-items: center; gap: 4px;
+}
+.token-name { color: var(--muted); font-size: 10px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.token-price-col { text-align: right; flex-shrink: 0; }
+.token-price-val { font-family: var(--mono); font-size: 11px; }
+.token-change { font-size: 10px; margin-top: 1px; }
+.up { color: var(--green); }
+.dn { color: var(--red); }
+.new-badge {
+  background: var(--yellow); color: #000;
+  font-size: 8px; padding: 1px 4px; border-radius: 2px; font-weight: 700;
+}
+
+/* ── Chart area ────────────────────────────────────────────── */
+.chart-area {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--bg);
+}
+.market-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 24px;
+  overflow-x: auto; flex-shrink: 0;
+}
+.pair-block { flex-shrink: 0; }
+.pair-name { font-size: 16px; font-weight: 700; font-family: var(--mono); }
+.pair-price {
+  font-size: 24px; font-weight: 700; font-family: var(--mono);
+  color: var(--green); line-height: 1.1;
+}
+.pair-price.dn { color: var(--red); }
+.market-stat { flex-shrink: 0; }
+.stat-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-val { font-family: var(--mono); font-size: 12px; margin-top: 2px; }
+.source-badges {
+  display: flex; gap: 4px; margin-left: auto; flex-shrink: 0;
+}
+.source-badge {
+  font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 600;
+  background: var(--s3); color: var(--muted); border: 1px solid var(--border);
+}
+.source-badge.active { color: var(--green); border-color: rgba(0,214,143,0.3); }
+
+.chart-controls {
+  display: flex; align-items: center; gap: 4px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.time-btn {
+  padding: 3px 10px; background: none; border: none;
+  color: var(--muted); font-size: 11px; cursor: pointer;
+  border-radius: 4px; font-family: var(--mono); transition: all 0.1s;
+}
+.time-btn:hover, .time-btn.active {
+  background: var(--s3); color: var(--text);
+}
+#chart { flex: 1; min-height: 0; }
+
+/* ── Right panel ───────────────────────────────────────────── */
+.right-panel {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.panel-tabs {
+  display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.panel-tab {
+  flex: 1; padding: 11px 6px; text-align: center; cursor: pointer;
+  font-size: 12px; color: var(--muted); border-bottom: 2px solid transparent;
+  transition: all 0.15s; font-weight: 500;
+}
+.panel-tab:hover { color: var(--text); }
+.panel-tab.active { color: var(--text); border-color: var(--yellow); }
+
+/* ── Swap form ─────────────────────────────────────────────── */
+.swap-form {
+  padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  overflow-y: auto; flex: 1;
+}
+.swap-label {
+  font-size: 11px; color: var(--muted); margin-bottom: 5px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.token-input-wrap {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 12px;
+  transition: border-color 0.15s;
+}
+.token-input-wrap:focus-within { border-color: var(--yellow); }
+.token-input {
+  width: 100%; background: none; border: none;
+  color: var(--text); font-family: var(--mono); font-size: 20px; outline: none;
+}
+.token-input::placeholder { color: var(--muted2); }
+.token-select-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 8px;
+}
+.token-select-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--s3); border: 1px solid var(--border);
+  color: var(--text); padding: 5px 10px;
+  border-radius: 6px; cursor: pointer; font-size: 12px;
+  font-family: var(--font); font-weight: 600; transition: all 0.1s;
+}
+.token-select-btn:hover { border-color: var(--border2); }
+.max-btn {
+  background: none; border: 1px solid rgba(245,197,24,0.4);
+  color: var(--yellow); font-size: 10px; padding: 2px 7px;
+  border-radius: 4px; cursor: pointer; font-family: var(--font); font-weight: 600;
+}
+.max-btn:hover { background: rgba(245,197,24,0.1); }
+.swap-arrow-btn {
+  text-align: center; cursor: pointer;
+  color: var(--muted); font-size: 20px; line-height: 1;
+  transition: all 0.2s;
+}
+.swap-arrow-btn:hover { color: var(--yellow); transform: rotate(180deg); }
+.slippage-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.slippage-btn {
+  background: var(--s2); border: 1px solid var(--border);
+  color: var(--muted); padding: 4px 10px; border-radius: 4px;
+  font-size: 11px; cursor: pointer; font-family: var(--font); transition: all 0.1s;
+}
+.slippage-btn.active {
+  border-color: var(--yellow); color: var(--yellow);
+  background: rgba(245,197,24,0.08);
+}
+.route-info {
+  background: var(--s2); border-radius: 6px; padding: 10px 12px;
+  font-size: 11px; color: var(--muted); border: 1px solid var(--border);
+}
+.route-row {
+  display: flex; justify-content: space-between;
+  padding: 3px 0; border-bottom: 1px solid var(--border);
+}
+.route-row:last-child { border-bottom: none; padding-bottom: 0; }
+.route-row span:last-child { color: var(--text); font-family: var(--mono); }
+.dex-badge {
+  font-size: 10px; background: rgba(64,150,255,0.15);
+  color: var(--blue); padding: 1px 6px; border-radius: 3px;
+  font-weight: 600;
+}
+
+/* ── Buy with KES form ─────────────────────────────────────── */
+.kes-buy-form {
+  padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  overflow-y: auto; flex: 1;
+}
+.kes-rate-display {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 12px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.kes-rate-label { font-size: 11px; color: var(--muted); }
+.kes-rate-val { font-family: var(--mono); font-size: 14px; color: var(--yellow); font-weight: 600; }
+
+/* ── Trades panel ──────────────────────────────────────────── */
+.trade-list-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px; color: var(--muted);
+  display: flex; justify-content: space-between;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.trade-row {
+  display: flex; justify-content: space-between;
+  padding: 5px 12px; border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: 11px;
+  transition: background 0.1s;
+}
+.trade-row:hover { background: var(--s2); }
+
+/* ── Modals ────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 500; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; width: 100%; max-width: 440px;
+  padding: 24px; position: relative;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-title {
+  font-size: 16px; font-weight: 700; margin-bottom: 18px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-close {
+  cursor: pointer; color: var(--muted); font-size: 22px;
+  background: none; border: none; line-height: 1;
+  transition: color 0.15s;
+}
+.modal-close:hover { color: var(--text); }
+
+.tab-row {
+  display: flex; border: 1px solid var(--border); border-radius: 6px;
+  overflow: hidden; margin-bottom: 18px;
+}
+.tab-btn {
+  flex: 1; padding: 8px; text-align: center; cursor: pointer;
+  font-size: 12px; color: var(--muted); background: none; border: none;
+  font-family: var(--font); font-weight: 500; transition: all 0.1s;
+}
+.tab-btn.active { background: var(--yellow); color: #000; font-weight: 700; }
+
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 11px; color: var(--muted); margin-bottom: 5px; display: block; font-weight: 500; }
+.form-input {
+  width: 100%; background: var(--s2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 12px; color: var(--text);
+  font-family: var(--mono); font-size: 13px; outline: none; transition: border-color 0.15s;
+}
+.form-input:focus { border-color: var(--yellow); }
+.form-input::placeholder { color: var(--muted2); }
+
+.address-box {
+  background: var(--s2); border: 1px solid var(--border); border-radius: 6px;
+  padding: 12px; font-family: var(--mono); font-size: 11px; word-break: break-all;
+  cursor: pointer; color: var(--yellow); transition: border-color 0.15s; line-height: 1.6;
+}
+.address-box:hover { border-color: var(--yellow); }
+
+.alert {
+  padding: 10px 12px; border-radius: 6px; font-size: 12px;
+  margin-bottom: 14px; line-height: 1.5;
+}
+.alert-warn    { background: rgba(245,197,24,0.08);   border: 1px solid rgba(245,197,24,0.25);   color: var(--yellow); }
+.alert-success { background: rgba(0,214,143,0.08);    border: 1px solid rgba(0,214,143,0.25);    color: var(--green); }
+.alert-err     { background: rgba(240,84,84,0.08);    border: 1px solid rgba(240,84,84,0.25);    color: var(--red); }
+.alert-info    { background: rgba(64,150,255,0.08);   border: 1px solid rgba(64,150,255,0.25);   color: var(--blue); }
+
+.wallet-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px; background: var(--s2); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; transition: all 0.15s; margin-bottom: 10px;
+}
+.wallet-option:hover { border-color: var(--yellow); background: var(--s3); }
+.wallet-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.wallet-name { font-weight: 600; font-size: 14px; }
+.wallet-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── Token select modal ────────────────────────────────────── */
+.token-modal-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border);
+  transition: opacity 0.1s;
+}
+.token-modal-item:hover { opacity: 0.75; }
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  background: var(--s3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 12px 16px; font-size: 13px;
+  max-width: 300px; transform: translateY(80px); opacity: 0;
+  transition: all 0.3s; pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error   { border-color: var(--red);   color: var(--red); }
+.toast.info    { border-color: var(--blue);  color: var(--blue); }
+
+/* ── Mobile bottom nav ─────────────────────────────────────── */
+.mobile-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--tab-h); background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 150;
+}
+.mobile-tabs {
+  display: flex; height: 100%;
+}
+.mobile-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 2px; cursor: pointer;
+  color: var(--muted); font-size: 10px; font-weight: 500;
+  transition: color 0.15s;
+}
+.mobile-tab.active { color: var(--yellow); }
+.mobile-tab svg { width: 18px; height: 18px; }
+
+/* ── Spinner ───────────────────────────────────────────────── */
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border2);
+  border-top-color: var(--yellow);
+  animation: spin 0.7s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Price pulse animation ─────────────────────────────────── */
+@keyframes pricePulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+.price-updating { animation: pricePulse 0.5s ease; }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .app { grid-template-columns: 0 1fr 0; }
+  .sidebar, .right-panel { display: none; }
+  .sidebar.mobile-visible, .right-panel.mobile-visible {
+    display: flex; position: fixed; top: var(--nav-h); bottom: var(--tab-h);
+    z-index: 100; width: min(320px, 90vw); overflow: hidden;
+  }
+  .sidebar.mobile-visible { left: 0; border-right: 1px solid var(--border); }
+  .right-panel.mobile-visible { right: 0; border-left: 1px solid var(--border); }
+  .mobile-nav { display: block; }
+  .app { height: calc(100vh - var(--nav-h) - var(--tab-h)); }
+  .chart-area { height: 100%; }
+  .nav-center { display: none; }
+  .rate-display { display: none !important; }
+}
+
+@media (max-width: 480px) {
+  nav { padding: 0 12px; gap: 8px; }
+  .logo { font-size: 15px; }
+  .btn { padding: 6px 10px; font-size: 11px; }
+  .market-bar { padding: 8px 12px; gap: 16px; }
+  .pair-price { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Krypto<em>KE</em></div>
+  <div class="nav-center">
+    <div class="nav-link active" onclick="showPage('trade')">Trade</div>
+    <div class="nav-link" onclick="openModal('deposit')">Deposit</div>
+    <div class="nav-link" onclick="showPage('portfolio')">Portfolio</div>
+  </div>
+  <div class="nav-right">
+    <div class="rate-display" id="rate-display"></div>
+    <div class="kes-display" id="kes-display">KES 0.00</div>
+    <button class="btn btn-outline" id="auth-btn" onclick="onAuthBtnClick()">Login</button>
+    <button class="btn btn-yellow" onclick="openModal('deposit')" id="deposit-nav-btn">Deposit</button>
+  </div>
+</nav>
+
+<!-- KYC banner -->
+<div class="kyc-banner" id="kyc-banner" style="display:none">
+  <span>⚠️ Complete identity verification to unlock full trading limits.</span>
+  <button class="btn btn-sm btn-yellow">Verify Now</button>
+</div>
+
+<!-- MAIN APP -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-search">
+      <input class="search-input" placeholder="Search tokens…" id="token-search" oninput="filterTokens(this.value)">
+    </div>
+    <div class="sidebar-tabs">
+      <div class="s-tab active">All</div>
+      <div class="s-tab" style="pointer-events:none;opacity:0.4">Fav</div>
+      <div class="s-tab" style="pointer-events:none;opacity:0.4">New</div>
+    </div>
+    <div class="token-list" id="token-list">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-area" id="chart-area">
+    <div class="market-bar" id="market-bar">
+      <div class="pair-block">
+        <div class="pair-name" id="pair-name">BNB/USDT</div>
+        <div class="pair-price" id="pair-price">—</div>
+      </div>
+      <div class="market-stat">
+        <div class="stat-label">KES Price</div>
+        <div class="stat-val" id="stat-kes">—</div>
+      </div>
+      <div class="market-stat">
+        <div class="stat-label">24h Change</div>
+        <div class="stat-val" id="stat-change">—</div>
+      </div>
+      <div class="market-stat">
+        <div class="stat-label">Liquidity</div>
+        <div class="stat-val" id="stat-liq">—</div>
+      </div>
+      <div class="source-badges" id="source-badges">
+        <span class="source-badge" id="badge-cg">CoinGecko</span>
+        <span class="source-badge" id="badge-pc">PancakeSwap</span>
+        <span class="source-badge" id="badge-bs">BiSwap</span>
+      </div>
+    </div>
+    <div class="chart-controls">
+      <button class="time-btn" onclick="setChartInterval('15m',this)">15m</button>
+      <button class="time-btn active" onclick="setChartInterval('1h',this)">1h</button>
+      <button class="time-btn" onclick="setChartInterval('4h',this)">4h</button>
+      <button class="time-btn" onclick="setChartInterval('1d',this)">1D</button>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted)" id="chart-note">PancakeSwap V2 candles</span>
+    </div>
+    <div id="chart"></div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="right-panel">
+    <div class="panel-tabs">
+      <div class="panel-tab active" onclick="switchPanel('swap',this)">Swap</div>
+      <div class="panel-tab" onclick="switchPanel('buy',this)">Buy KES</div>
+      <div class="panel-tab" onclick="switchPanel('trades',this)">Trades</div>
+    </div>
+
+    <!-- SWAP -->
+    <div id="panel-swap" class="swap-form">
+      <div>
+        <div class="swap-label">
+          <span>You Pay</span>
+          <span id="balance-in" style="cursor:pointer" onclick="setMax()">Balance: —</span>
+        </div>
+        <div class="token-input-wrap">
+          <input class="token-input" id="amount-in" type="number" placeholder="0.00" oninput="onAmountChange()">
+          <div class="token-select-row">
+            <button class="token-select-btn" onclick="openTokenSelect('in')" id="token-in-btn">BNB ▾</button>
+            <button class="max-btn" onclick="setMax()">MAX</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="swap-arrow-btn" onclick="flipTokens()">⇅</div>
+
+      <div>
+        <div class="swap-label">
+          <span>You Receive</span>
+          <span id="balance-out">Balance: —</span>
+        </div>
+        <div class="token-input-wrap">
+          <input class="token-input" id="amount-out" type="number" placeholder="0.00" readonly>
+          <div class="token-select-row">
+            <button class="token-select-btn" onclick="openTokenSelect('out')" id="token-out-btn">USDT ▾</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="swap-label"><span>Slippage</span></div>
+        <div class="slippage-row">
+          <button class="slippage-btn active" onclick="setSlippage(0.1,this)">0.1%</button>
+          <button class="slippage-btn" onclick="setSlippage(0.5,this)">0.5%</button>
+          <button class="slippage-btn" onclick="setSlippage(1,this)">1%</button>
+          <button class="slippage-btn" onclick="setSlippage(5,this)">5%</button>
+        </div>
+      </div>
+
+      <div class="route-info" id="route-info" style="display:none">
+        <div class="route-row"><span>Rate</span><span id="route-rate">—</span></div>
+        <div class="route-row"><span>Price Impact</span><span id="route-impact">—</span></div>
+        <div class="route-row"><span>Min Received</span><span id="route-min">—</span></div>
+        <div class="route-row"><span>Route via</span><span id="route-dex">—</span></div>
+        <div class="route-row"><span>Fee (0.25%)</span><span id="route-fee">—</span></div>
+      </div>
+
+      <button class="btn btn-green" id="swap-btn" onclick="doSwap()" style="width:100%;padding:13px;font-size:14px">
+        Connect Wallet to Swap
+      </button>
+      <div id="swap-status" style="display:none"></div>
+    </div>
+
+    <!-- BUY WITH KES -->
+    <div id="panel-buy" style="display:none" class="kes-buy-form">
+      <div class="kes-rate-display">
+        <div>
+          <div class="kes-rate-label">Current Rate</div>
+          <div class="kes-rate-val" id="kes-rate-val">1 USDT = KES —</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:right">
+          Live rate<br><span id="kes-rate-source">—</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="swap-label"><span>You Pay (KES via M-Pesa)</span></div>
+        <div class="token-input-wrap">
+          <input class="token-input" id="kes-buy-amount" type="number" placeholder="500" oninput="calcKesConversion()">
+          <div class="token-select-row">
+            <span style="font-size:13px;color:var(--muted);font-family:var(--mono)">KES 🇰🇪</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;color:var(--muted);font-size:18px">⬇</div>
+
+      <div>
+        <div class="swap-label"><span>You Receive (USDT)</span></div>
+        <div class="token-input-wrap">
+          <input class="token-input" id="kes-buy-out" type="number" placeholder="0.00" readonly>
+          <div class="token-select-row">
+            <span style="font-size:13px;color:var(--muted);font-family:var(--mono)">USDT 💵</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Safaricom Phone</label>
+        <input class="form-input" id="kes-phone" type="tel" placeholder="0712 345 678">
+      </div>
+
+      <button class="btn btn-yellow" id="kes-buy-btn" onclick="initKesBuy()" style="width:100%;padding:13px;font-size:14px">
+        Buy USDT with M-Pesa
+      </button>
+      <div id="kes-buy-status" style="display:none;margin-top:8px"></div>
+    </div>
+
+    <!-- TRADES -->
+    <div id="panel-trades" style="display:none;flex:1;overflow-y:auto">
+      <div class="trade-list-header">
+        <span>Price (USD)</span><span>Amount</span><span>Time</span>
+      </div>
+      <div id="trade-feed"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <div class="mobile-tabs">
+    <div class="mobile-tab active" id="mob-chart" onclick="mobilePage('chart')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Chart</span>
+    </div>
+    <div class="mobile-tab" id="mob-tokens" onclick="mobilePage('tokens')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Markets</span>
+    </div>
+    <div class="mobile-tab" id="mob-trade" onclick="mobilePage('trade')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+      <span>Trade</span>
+    </div>
+    <div class="mobile-tab" id="mob-deposit" onclick="openModal('deposit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>Deposit</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── DEPOSIT MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-deposit">
+  <div class="modal">
+    <div class="modal-title">
+      Deposit Funds
+      <button class="modal-close" onclick="closeModal('deposit')">×</button>
+    </div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('dep','mpesa',this)">M-Pesa</button>
+      <button class="tab-btn" onclick="switchTab('dep','crypto',this)">Crypto</button>
+      <button class="tab-btn" onclick="switchTab('dep','connect',this)">Wallet</button>
+    </div>
+
+    <div id="dep-mpesa">
+      <div class="alert alert-info">KES deposits are converted to USDT at the live rate and credited to your account.</div>
+      <div class="form-group">
+        <label class="form-label">Safaricom Phone</label>
+        <input class="form-input" id="mpesa-phone" type="tel" placeholder="0712 345 678">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount (KES) — min KES 10</label>
+        <input class="form-input" id="mpesa-amount" type="number" min="10" placeholder="500" oninput="previewDeposit()">
+      </div>
+      <div id="deposit-preview" style="margin-bottom:12px;display:none">
+        <div class="kes-rate-display">
+          <span class="kes-rate-label">You will receive</span>
+          <span class="kes-rate-val" id="deposit-usdt-preview">≈ 0 USDT</span>
+        </div>
+      </div>
+      <button class="btn btn-yellow" style="width:100%;padding:12px" onclick="initMpesaDeposit()">Send STK Push</button>
+      <div id="mpesa-status" style="margin-top:10px;display:none"></div>
+    </div>
+
+    <div id="dep-crypto" style="display:none">
+      <div class="alert alert-warn">Send only BEP-20 tokens (BSC) to this address. Other networks = lost funds.</div>
+      <div class="form-group">
+        <label class="form-label">Your BSC Deposit Address</label>
+        <div class="address-box" id="deposit-address" onclick="copyAddress()">Login to see your address</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">Click to copy • BSC (BEP-20) only</div>
+      </div>
+    </div>
+
+    <div id="dep-connect" style="display:none">
+      <div class="wallet-option" onclick="connectMetaMask()">
+        <div class="wallet-icon">🦊</div>
+        <div><div class="wallet-name">MetaMask</div><div class="wallet-desc">Browser extension wallet</div></div>
+      </div>
+      <div class="wallet-option" onclick="connectTrustWallet()">
+        <div class="wallet-icon">🛡️</div>
+        <div><div class="wallet-name">Trust Wallet</div><div class="wallet-desc">Mobile & extension</div></div>
+      </div>
+      <div class="wallet-option" onclick="showToast('WalletConnect coming soon','info')">
+        <div class="wallet-icon">🔗</div>
+        <div><div class="wallet-name">WalletConnect</div><div class="wallet-desc">Scan with any mobile wallet</div></div>
+      </div>
+      <div id="connect-status" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── AUTH MODAL ─────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-auth">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="auth-title">Welcome back</span>
+      <button class="modal-close" onclick="closeModal('auth')">×</button>
+    </div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('auth','login',this)">Login</button>
+      <button class="tab-btn" onclick="switchTab('auth','register',this)">Register</button>
+    </div>
+
+    <div id="auth-login">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="login-email" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-password" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-yellow" style="width:100%;padding:12px" onclick="doLogin()">Login</button>
+      <div id="login-status" style="margin-top:10px;display:none"></div>
+    </div>
+
+    <div id="auth-register" style="display:none">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Safaricom Phone</label><input class="form-input" id="reg-phone" type="tel" placeholder="0712 345 678"></div>
+      <div class="form-group"><label class="form-label">Password (min 8 chars)</label><input class="form-input" id="reg-password" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-yellow" style="width:100%;padding:12px" onclick="doRegister()">Create Account</button>
+      <div id="reg-status" style="margin-top:10px;display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOKEN SELECT MODAL ─────────────────────────────────── -->
+<div class="modal-overlay" id="modal-token-select">
+  <div class="modal" style="max-height:80vh;display:flex;flex-direction:column">
+    <div class="modal-title">Select Token <button class="modal-close" onclick="closeModal('token-select')">×</button></div>
+    <input class="search-input" id="tok-search" placeholder="Search or paste address…" oninput="filterModalTokens(this.value)" style="margin-bottom:14px">
+    <div id="tok-list" style="overflow-y:auto;flex:1"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const API = '%%LAMBDA_API_URL%%';   // replaced at deploy time by GitHub Actions
+const FB_CONFIG = {
+  apiKey:      '%%FIREBASE_API_KEY%%',
+  authDomain:  '%%FIREBASE_AUTH_DOMAIN%%',
+  databaseURL: '%%FIREBASE_DATABASE_URL%%',
+  projectId:   '%%FIREBASE_PROJECT_ID%%',
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const S = {
+  tokens:       [],
+  selected:     null,
+  tokenIn:      { symbol:'BNB',  address:'0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', decimals:18 },
+  tokenOut:     { symbol:'USDT', address:'0x55d398326f99059fF775485246999027B3197955', decimals:18 },
+  slippage:     0.1,
+  walletAddr:   null,
+  token:        localStorage.getItem('kk_token'),
+  user:         JSON.parse(localStorage.getItem('kk_user') || 'null'),
+  chart:        null,
+  candles:      null,
+  kesPerUsd:    129,
+  priceInterval: null,
+};
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initChart();
+  loadTokens();
+  fetchRate();
+  setInterval(fetchRate, 3 * 60 * 1000); // refresh rate every 3 min
+  if (S.token) restoreSession();
+});
+
+// ─── RATE ─────────────────────────────────────────────────────────────────────
+async function fetchRate() {
+  try {
+    const r = await api('/api/wallet/rate');
+    S.kesPerUsd = r.kesPerUsd;
+    const el = document.getElementById('rate-display');
+    el.textContent = `1 USDT = KES ${r.kesPerUsd.toFixed(2)}`;
+    el.style.display = 'inline';
+    document.getElementById('kes-rate-val').textContent = `1 USDT = KES ${r.kesPerUsd.toFixed(2)}`;
+    document.getElementById('kes-rate-source').textContent = 'Live forex';
+    // update any existing prices in sidebar
+    renderTokenList(S.tokens);
+  } catch {}
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────────
+function initChart() {
+  const el = document.getElementById('chart');
+  S.chart = LightweightCharts.createChart(el, {
+    layout:    { background: { color: '#080b0f' }, textColor: '#7a8899' },
+    grid:      { vertLines: { color: '#0f1318' }, horzLines: { color: '#0f1318' } },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale: { borderColor: '#242d38' },
+    timeScale: { borderColor: '#242d38', timeVisible: true },
+    width:  el.offsetWidth,
+    height: el.offsetHeight || 400,
+  });
+  S.candles = S.chart.addCandlestickSeries({
+    upColor: '#00d68f', downColor: '#f05454',
+    borderUpColor: '#00d68f', borderDownColor: '#f05454',
+    wickUpColor: '#00d68f', wickDownColor: '#f05454',
+  });
+  new ResizeObserver(() => {
+    S.chart.applyOptions({ width: el.offsetWidth, height: el.offsetHeight });
+  }).observe(el);
+}
+
+async function loadChart(addr, interval='hour') {
+  try {
+    const r = await api(`/api/market/candles/${addr}?interval=${interval}&limit=96`);
+    if (r.candles?.length) S.candles.setData(r.candles);
+  } catch {}
+}
+
+function setChartInterval(iv, btn) {
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (S.selected) loadChart(S.selected.address, iv === '1d' ? 'day' : 'hour');
+}
+
+// ─── TOKENS ──────────────────────────────────────────────────────────────────
+async function loadTokens() {
+  try {
+    const r = await api('/api/tokens');
+    S.tokens = r.tokens || [];
+    renderTokenList(S.tokens);
+    if (S.tokens.length) selectToken(S.tokens[0]);
+    // Start live price updates
+    startLivePrices();
+  } catch {}
+}
+
+function startLivePrices() {
+  if (S.priceInterval) clearInterval(S.priceInterval);
+  S.priceInterval = setInterval(async () => {
+    // Update prices for visible tokens
+    const visible = S.tokens.slice(0, 15);
+    await Promise.allSettled(visible.map(async t => {
+      try {
+        const r = await api(`/api/market/price/${t.address}`);
+        t.price    = r.price;
+        t.priceKes = r.priceKes;
+        t.change24h = r.change24h;
+        t.sources  = r.sources;
+      } catch {}
+    }));
+    renderTokenList(S.tokens);
+    // If selected token is in view, update market bar
+    if (S.selected) {
+      const updated = S.tokens.find(t => t.address === S.selected.address);
+      if (updated) updateMarketBar(updated);
+    }
+  }, 15000); // every 15s
+}
+
+function renderTokenList(tokens) {
+  const el = document.getElementById('token-list');
+  el.innerHTML = tokens.map(t => {
+    const chg = t.change24h;
+    const chgClass = chg == null ? '' : chg >= 0 ? 'up' : 'dn';
+    const chgStr   = chg == null ? '—' : (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    const pKes     = (t.price || 0) * S.kesPerUsd;
+    return `
+    <div class="token-item ${S.selected?.address === t.address ? 'active' : ''}"
+         onclick='selectToken(${JSON.stringify(t).replace(/'/g,"&#39;")})'>
+      <div class="token-icon">${t.symbol.slice(0,2)}</div>
+      <div class="token-meta">
+        <div class="token-symbol">${t.symbol}${t.isNew ? ' <span class="new-badge">NEW</span>' : ''}</div>
+        <div class="token-name">${t.name}</div>
+      </div>
+      <div class="token-price-col">
+        <div class="token-price-val">$${fmtPrice(t.price||0)}</div>
+        <div class="token-change ${chgClass}">${chgStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterTokens(q) {
+  renderTokenList(S.tokens.filter(t =>
+    !q || t.symbol.toLowerCase().includes(q.toLowerCase()) || t.name.toLowerCase().includes(q.toLowerCase())
+  ));
+}
+
+async function selectToken(t) {
+  S.selected = t;
+  S.tokenOut = { symbol: t.symbol, address: t.address, decimals: t.decimals || 18 };
+  document.getElementById('token-out-btn').textContent = t.symbol + ' ▾';
+  document.getElementById('pair-name').textContent = `${t.symbol}/USDT`;
+  renderTokenList(S.tokens);
+  loadChart(t.address);
+  subscribeToTrades(t.address);
+  updateMarketBar(t);
+  // immediate live price fetch
+  try {
+    const r = await api(`/api/market/price/${t.address}`);
+    t.price = r.price; t.priceKes = r.priceKes; t.change24h = r.change24h; t.sources = r.sources;
+    updateMarketBar(t);
+    renderTokenList(S.tokens);
+  } catch {}
+}
+
+function updateMarketBar(t) {
+  const price    = t.price || 0;
+  const priceKes = price * S.kesPerUsd;
+  const chg      = t.change24h;
+
+  const priceEl = document.getElementById('pair-price');
+  priceEl.classList.add('price-updating');
+  setTimeout(() => priceEl.classList.remove('price-updating'), 500);
+  priceEl.textContent = '$' + fmtPrice(price);
+  priceEl.className = 'pair-price ' + (chg == null ? '' : chg >= 0 ? '' : 'dn');
+
+  document.getElementById('stat-kes').textContent    = 'KES ' + fmtPrice(priceKes);
+  document.getElementById('stat-liq').textContent    = '$' + fmtNum(t.liquidity || 0);
+  if (chg != null) {
+    const el = document.getElementById('stat-change');
+    el.textContent  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    el.className = 'stat-val ' + (chg >= 0 ? 'up' : 'dn');
+  }
+
+  // Source badges
+  const src = t.sources;
+  if (src) {
+    document.getElementById('badge-cg').classList.toggle('active', !!src.coingecko);
+    document.getElementById('badge-pc').classList.toggle('active', !!src.pancakeswapV2);
+    document.getElementById('badge-bs').classList.toggle('active', !!src.biswap);
+  }
+}
+
+// ─── SWAP ─────────────────────────────────────────────────────────────────────
+let qTimer = null;
+function onAmountChange() {
+  clearTimeout(qTimer);
+  qTimer = setTimeout(fetchQuote, 600);
+}
+
+async function fetchQuote() {
+  const amtIn = parseFloat(document.getElementById('amount-in').value);
+  if (!amtIn || amtIn <= 0) {
+    document.getElementById('amount-out').value = '';
+    document.getElementById('route-info').style.display = 'none';
+    return;
+  }
+  try {
+    const r = await api('/api/trade/quote', {
+      method: 'POST',
+      body: JSON.stringify({ tokenIn: S.tokenIn.address, tokenOut: S.tokenOut.address, amountIn: amtIn, decimalsIn: S.tokenIn.decimals }),
+    });
+    if (r.amountOut) {
+      document.getElementById('amount-out').value = parseFloat(r.amountOut).toFixed(6);
+      const rate = parseFloat(r.amountOut) / amtIn;
+      document.getElementById('route-rate').textContent   = `1 ${S.tokenIn.symbol} = ${rate.toFixed(6)} ${S.tokenOut.symbol}`;
+      document.getElementById('route-impact').textContent = '< 0.1%';
+      document.getElementById('route-min').textContent    = (parseFloat(r.amountOut) * (1 - S.slippage/100)).toFixed(6) + ' ' + S.tokenOut.symbol;
+      document.getElementById('route-dex').innerHTML      = `<span class="dex-badge">${r.dex || 'PancakeSwap V2'}</span>`;
+      document.getElementById('route-fee').textContent    = (amtIn * 0.0025).toFixed(6) + ' ' + S.tokenIn.symbol;
+      document.getElementById('route-info').style.display = 'block';
+    }
+  } catch {}
+}
+
+async function doSwap() {
+  if (!S.token && !S.walletAddr) { openModal('auth'); return; }
+  if (!S.walletAddr) { showToast('Connect a wallet to swap', 'error'); openModal('deposit'); return; }
+  const amtIn = parseFloat(document.getElementById('amount-in').value);
+  if (!amtIn) return showToast('Enter an amount', 'error');
+
+  const btn = document.getElementById('swap-btn');
+  btn.textContent = 'Building…'; btn.disabled = true;
+
+  try {
+    const r = await api('/api/trade/build', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + S.token },
+      body: JSON.stringify({
+        tokenIn: S.tokenIn.address, tokenOut: S.tokenOut.address,
+        amountIn: amtIn, decimalsIn: S.tokenIn.decimals,
+        slippage: S.slippage, walletAddress: S.walletAddr,
+      }),
+    });
+    if (!window.ethereum) return showToast('No wallet detected', 'error');
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{ from: S.walletAddr, to: r.to, data: r.data,
+                 value: '0x' + BigInt(r.value||0).toString(16),
+                 gas: '0x' + parseInt(r.gasLimit).toString(16), chainId: '0x38' }],
+    });
+    showToast('Transaction sent!', 'success');
+    await api('/api/trade/confirm', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + S.token },
+      body: JSON.stringify({ tradeId: r.tradeId, txHash, amountOut: document.getElementById('amount-out').value }),
+    });
+    showToast('Swap confirmed ✓', 'success');
+  } catch(e) {
+    showToast(e.message || 'Swap failed', 'error');
+  } finally {
+    btn.textContent = 'Swap'; btn.disabled = false;
+  }
+}
+
+function flipTokens() {
+  [S.tokenIn, S.tokenOut] = [S.tokenOut, S.tokenIn];
+  document.getElementById('token-in-btn').textContent  = S.tokenIn.symbol  + ' ▾';
+  document.getElementById('token-out-btn').textContent = S.tokenOut.symbol + ' ▾';
+  document.getElementById('amount-in').value  = document.getElementById('amount-out').value;
+  document.getElementById('amount-out').value = '';
+  fetchQuote();
+}
+
+function setSlippage(v, btn) {
+  S.slippage = v;
+  document.querySelectorAll('.slippage-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setMax() { /* fetch balance → set */ }
+
+// ─── KES BUY ─────────────────────────────────────────────────────────────────
+function calcKesConversion() {
+  const kes = parseFloat(document.getElementById('kes-buy-amount').value) || 0;
+  const usdt = kes / S.kesPerUsd;
+  document.getElementById('kes-buy-out').value = usdt > 0 ? usdt.toFixed(4) : '';
+}
+
+async function initKesBuy() {
+  if (!S.token) { closeModal('deposit'); openModal('auth'); return; }
+  const amount = parseFloat(document.getElementById('kes-buy-amount').value);
+  const phone  = document.getElementById('kes-phone').value;
+  if (!phone || !amount) return showAlert('kes-buy-status', 'Enter phone and amount', 'err');
+  if (amount < 10) return showAlert('kes-buy-status', 'Minimum KES 10', 'err');
+
+  document.getElementById('kes-buy-btn').textContent = 'Sending…';
+  document.getElementById('kes-buy-btn').disabled = true;
+  showAlert('kes-buy-status', 'Sending STK Push to your phone…', 'warn');
+
+  try {
+    const r = await api('/api/mpesa/deposit', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + S.token },
+      body: JSON.stringify({ phone, amount }),
+    });
+    showAlert('kes-buy-status', `✓ STK sent! Enter your M-Pesa PIN. Ref: ${r.txId?.slice(0,8).toUpperCase()}`, 'success');
+    pollDeposit(r.txId);
+  } catch(e) {
+    showAlert('kes-buy-status', e.message, 'err');
+  } finally {
+    document.getElementById('kes-buy-btn').textContent = 'Buy USDT with M-Pesa';
+    document.getElementById('kes-buy-btn').disabled = false;
+  }
+}
+
+// Preview USDT amount in deposit modal
+function previewDeposit() {
+  const kes = parseFloat(document.getElementById('mpesa-amount').value) || 0;
+  if (kes >= 10) {
+    const usdt = kes / S.kesPerUsd;
+    document.getElementById('deposit-usdt-preview').textContent = `≈ ${usdt.toFixed(4)} USDT`;
+    document.getElementById('deposit-preview').style.display = 'block';
+  } else {
+    document.getElementById('deposit-preview').style.display = 'none';
+  }
+}
+
+// ─── M-PESA ───────────────────────────────────────────────────────────────────
+async function initMpesaDeposit() {
+  if (!S.token) { closeModal('deposit'); openModal('auth'); return; }
+  const phone  = document.getElementById('mpesa-phone').value;
+  const amount = parseFloat(document.getElementById('mpesa-amount').value);
+  if (!phone || !amount) return showAlert('mpesa-status', 'Enter phone and amount', 'err');
+
+  showAlert('mpesa-status', 'Sending STK Push…', 'warn');
+  try {
+    const r = await api('/api/mpesa/deposit', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + S.token },
+      body: JSON.stringify({ phone, amount }),
+    });
+    showAlert('mpesa-status', `✓ Check your phone for M-Pesa PIN prompt. Ref: ${r.txId?.slice(0,8).toUpperCase()}`, 'success');
+    pollDeposit(r.txId);
+  } catch(e) {
+    showAlert('mpesa-status', e.message, 'err');
+  }
+}
+
+async function pollDeposit(txId) {
+  let tries = 0;
+  const poll = setInterval(async () => {
+    if (++tries > 24) return clearInterval(poll);
+    try {
+      const r = await api(`/api/mpesa/status/${txId}`, { headers: { Authorization: 'Bearer ' + S.token } });
+      if (r.status === 'completed') {
+        clearInterval(poll);
+        showAlert('mpesa-status', `✓ KES ${r.amount} deposited → ${r.usdtCredited?.toFixed(4)} USDT credited`, 'success');
+        showAlert('kes-buy-status', `✓ KES ${r.amount} deposited → ${r.usdtCredited?.toFixed(4)} USDT credited`, 'success');
+        showToast(`KES ${r.amount} → ${r.usdtCredited?.toFixed(4)} USDT ✓`, 'success');
+        fetchKesBalance();
+      } else if (r.status === 'failed') {
+        clearInterval(poll);
+        showAlert('mpesa-status',  'Payment failed or cancelled', 'err');
+        showAlert('kes-buy-status', 'Payment failed or cancelled', 'err');
+      }
+    } catch {}
+  }, 5000);
+}
+
+async function fetchKesBalance() {
+  if (!S.token) return;
+  try {
+    const r = await api('/api/wallet/info', { headers: { Authorization: 'Bearer ' + S.token } });
+    const kes  = r.kesBalance  || 0;
+    const usdt = r.usdtBalance || 0;
+    document.getElementById('kes-display').textContent = `KES ${kes.toLocaleString()} · ${usdt.toFixed(2)} USDT`;
+    document.getElementById('kes-display').style.display = 'block';
+  } catch {}
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const pass  = document.getElementById('login-password').value;
+  if (!email || !pass) return showAlert('login-status', 'Fill all fields', 'err');
+  try {
+    const r = await api('/api/auth/login', { method:'POST', body: JSON.stringify({email, password:pass}) });
+    saveSession(r);
+    closeModal('auth');
+    showToast('Logged in ✓', 'success');
+  } catch(e) { showAlert('login-status', e.message, 'err'); }
+}
+
+async function doRegister() {
+  const email = document.getElementById('reg-email').value;
+  const phone = document.getElementById('reg-phone').value;
+  const pass  = document.getElementById('reg-password').value;
+  if (!email || !pass) return showAlert('reg-status', 'Fill all fields', 'err');
+  if (pass.length < 8) return showAlert('reg-status', 'Password must be 8+ chars', 'err');
+  try {
+    const r = await api('/api/auth/register', { method:'POST', body: JSON.stringify({email, phone, password:pass}) });
+    saveSession(r);
+    closeModal('auth');
+    // Show deposit address (NOT a private key - this is an HD-derived public address)
+    showToast(`Account created! Deposit address: ${r.user.depositAddress?.slice(0,10)}…`, 'success');
+  } catch(e) { showAlert('reg-status', e.message, 'err'); }
+}
+
+function saveSession(r) {
+  S.token = r.token; S.user = r.user;
+  localStorage.setItem('kk_token', r.token);
+  localStorage.setItem('kk_user', JSON.stringify(r.user));
+  updateAuthUI();
+}
+
+function restoreSession() {
+  updateAuthUI();
+  fetchKesBalance();
+}
+
+function updateAuthUI() {
+  if (!S.user) return;
+  const btn = document.getElementById('auth-btn');
+  btn.textContent = S.user.email.split('@')[0];
+  const addr = S.user.depositAddress;
+  if (addr) document.getElementById('deposit-address').textContent = addr;
+  document.getElementById('kyc-banner').style.display = S.user.kycStatus === 'pending' ? 'flex' : 'none';
+  fetchKesBalance();
+}
+
+function onAuthBtnClick() {
+  if (S.token) {
+    // Logout
+    S.token = null; S.user = null;
+    localStorage.removeItem('kk_token'); localStorage.removeItem('kk_user');
+    document.getElementById('auth-btn').textContent = 'Login';
+    document.getElementById('kes-display').style.display = 'none';
+    showToast('Logged out', 'info');
+  } else {
+    openModal('auth');
+  }
+}
+
+// ─── WALLET CONNECT ───────────────────────────────────────────────────────────
+async function connectMetaMask() {
+  if (!window.ethereum) return showToast('MetaMask not found', 'error');
+  try {
+    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }] });
+  } catch {
+    await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
+      chainId: '0x38', chainName: 'BNB Smart Chain',
+      nativeCurrency: { name:'BNB', symbol:'BNB', decimals:18 },
+      rpcUrls: ['https://bsc-dataseed1.binance.org'],
+      blockExplorerUrls: ['https://bscscan.com'],
+    }]});
+  }
+  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  S.walletAddr = accounts[0];
+  document.getElementById('auth-btn').textContent = S.walletAddr.slice(0,6) + '…' + S.walletAddr.slice(-4);
+  document.getElementById('swap-btn').textContent = 'Swap';
+  closeModal('deposit');
+  showToast('MetaMask connected ✓', 'success');
+}
+
+async function connectTrustWallet() { await connectMetaMask(); }
+
+// ─── REALTIME TRADES ─────────────────────────────────────────────────────────
+let fbApp, fbDb;
+function initFirebase() {
+  if (fbApp) return;
+  try { fbApp = firebase.initializeApp(FB_CONFIG); fbDb = firebase.database(); } catch {}
+}
+function subscribeToTrades(addr) {
+  initFirebase();
+  if (!fbDb) return;
+  fbDb.ref(`trades/${addr}`).limitToLast(50).on('value', snap => {
+    const trades = [];
+    snap.forEach(c => trades.push(c.val()));
+    renderTrades(trades.reverse());
+  });
+}
+function renderTrades(trades) {
+  document.getElementById('trade-feed').innerHTML = trades.map(t => {
+    const time = new Date(t.ts).toTimeString().slice(0,8);
+    return `<div class="trade-row">
+      <span class="up">$${fmtPrice(t.price)}</span>
+      <span style="color:var(--muted)">${parseFloat(t.amountIn).toFixed(4)}</span>
+      <span style="color:var(--muted2)">${time}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── TOKEN SELECT MODAL ───────────────────────────────────────────────────────
+let tokTarget = 'out';
+function openTokenSelect(t) {
+  tokTarget = t; filterModalTokens(''); openModal('token-select');
+}
+function filterModalTokens(q) {
+  const list = S.tokens.filter(t => !q || t.symbol.toLowerCase().includes(q.toLowerCase()) || t.name.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('tok-list').innerHTML = list.map(t => `
+    <div class="token-modal-item" onclick='pickToken(${JSON.stringify(t).replace(/'/g,"&#39;")})'>
+      <div class="token-icon">${t.symbol.slice(0,2)}</div>
+      <div class="token-meta">
+        <div class="token-symbol">${t.symbol}</div>
+        <div class="token-name">${t.name}</div>
+      </div>
+      <div style="margin-left:auto;font-family:var(--mono);font-size:11px">$${fmtPrice(t.price||0)}</div>
+    </div>`).join('');
+}
+function pickToken(t) {
+  const obj = { symbol: t.symbol, address: t.address, decimals: t.decimals||18 };
+  if (tokTarget === 'in') { S.tokenIn  = obj; document.getElementById('token-in-btn').textContent  = t.symbol + ' ▾'; }
+  else                    { S.tokenOut = obj; document.getElementById('token-out-btn').textContent = t.symbol + ' ▾'; selectToken(t); }
+  closeModal('token-select'); fetchQuote();
+}
+
+// ─── MOBILE NAV ───────────────────────────────────────────────────────────────
+function mobilePage(page) {
+  document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+  const sidebar     = document.getElementById('sidebar');
+  const rightPanel  = document.getElementById('right-panel');
+  sidebar.classList.remove('mobile-visible');
+  rightPanel.classList.remove('mobile-visible');
+
+  if (page === 'tokens') { sidebar.classList.add('mobile-visible'); document.getElementById('mob-tokens').classList.add('active'); }
+  else if (page === 'trade') { rightPanel.classList.add('mobile-visible'); document.getElementById('mob-trade').classList.add('active'); }
+  else { document.getElementById('mob-chart').classList.add('active'); }
+}
+
+// ─── PANELS ───────────────────────────────────────────────────────────────────
+function switchPanel(name, btn) {
+  ['swap','buy','trades'].forEach(p => {
+    document.getElementById('panel-'+p).style.display = p === name ? (p==='trades'?'block':'flex') : 'none';
+  });
+  document.querySelectorAll('.panel-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function switchTab(group, name, btn) {
+  const tabs = document.querySelectorAll(`[id^="${group}-"]`);
+  tabs.forEach(t => t.style.display = t.id === `${group}-${name}` ? '' : 'none');
+  btn.closest('.tab-row').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function openModal(n)  { document.getElementById('modal-'+n).classList.add('open'); }
+function closeModal(n) { document.getElementById('modal-'+n).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+document.getElementById('auth-btn').addEventListener('click', onAuthBtnClick);
+
+function showPage(p) {
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function copyAddress() {
+  const t = document.getElementById('deposit-address').textContent;
+  navigator.clipboard.writeText(t);
+  showToast('Address copied ✓', 'success');
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function fmtPrice(n) {
+  if (!n) return '0.00';
+  if (n >= 1)       return n.toLocaleString('en', { maximumFractionDigits: 4 });
+  if (n > 0.0001)   return n.toFixed(6);
+  return n.toExponential(4);
+}
+
+function fmtNum(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(2)+'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(2)+'K';
+  return n.toFixed(2);
+}
+
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast show ' + type;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.className = 'alert alert-' + (type==='success'?'success':type==='err'?'err':type==='info'?'info':'warn');
+  el.textContent = msg;
+}
+</script>
+</body>
+</html>
