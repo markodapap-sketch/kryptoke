@@ -37,7 +37,11 @@ jobs:
         run: aws lambda update-function-code --function-name dex-exchange-server --s3-bucket oda-pap-lambda-deploy --s3-key dex-function.zip --region ap-south-1
 
       - name: Update Lambda env vars
-        run: aws lambda update-function-configuration --function-name dex-exchange-server --environment file://lambda/env.json --region ap-south-1
+        run: |
+          aws lambda update-function-configuration \
+            --function-name dex-exchange-server \
+            --region ap-south-1 \
+            --environment "Variables={NODE_ENV=production,JWT_SECRET=${{ secrets.JWT_SECRET }},FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }},FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }},FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }},FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }},MPESA_CONSUMER_KEY=${{ secrets.MPESA_CONSUMER_KEY }},MPESA_CONSUMER_SECRET=${{ secrets.MPESA_CONSUMER_SECRET }},MPESA_SHORTCODE=${{ secrets.MPESA_SHORTCODE }},MPESA_PASSKEY=${{ secrets.MPESA_PASSKEY }},MPESA_ENVIRONMENT=live,INITIATOR_NAME=${{ secrets.INITIATOR_NAME }},SECURITY_CREDENTIAL=${{ secrets.SECURITY_CREDENTIAL }},CALLBACK_BASE_URL=${{ secrets.LAMBDA_API_URL }},BSC_RPC_URL=https://bsc-dataseed1.binance.org,MASTER_SEED=${{ secrets.MASTER_SEED }},HOT_WALLET=${{ secrets.HOT_WALLET }},HOT_WALLET_KEY=${{ secrets.HOT_WALLET_KEY }},SWEEP_SECRET=${{ secrets.SWEEP_SECRET }}}"
 
   deploy-frontend:
     name: Deploy Frontend
