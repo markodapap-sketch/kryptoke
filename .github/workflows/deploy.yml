@@ -10,34 +10,51 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
       - name: Install dependencies
         working-directory: lambda
         run: npm install
-      - name: Zip code only
+
+      - name: Zip code + node_modules
         run: |
           cd lambda
-          zip function.zip server.js package.json
-          zip function.zip routes/auth.js routes/trade.js routes/tokens.js routes/market.js routes/mpesa.js routes/wallet.js
-          zip function.zip services/bsc.js services/firebase.js services/mpesa.js
-          zip function.zip middleware/auth.js
+          zip -r function.zip \
+            server.js \
+            package.json \
+            package-lock.json \
+            node_modules \
+            routes/auth.js \
+            routes/trade.js \
+            routes/tokens.js \
+            routes/market.js \
+            routes/mpesa.js \
+            routes/wallet.js \
+            routes/sweep.js \
+            routes/withdraw.js \
+            services/bsc.js \
+            services/firebase.js \
+            services/mpesa.js \
+            services/forex.js \
+            middleware/auth.js
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
+
       - name: Upload to S3
         run: aws s3 cp lambda/function.zip s3://oda-pap-lambda-deploy/dex-function.zip --region ap-south-1
+
       - name: Deploy to Lambda
         run: aws lambda update-function-code --function-name dex-exchange-server --s3-bucket oda-pap-lambda-deploy --s3-key dex-function.zip --region ap-south-1
-      - name: Set env vars
-        run: |
-          aws lambda update-function-configuration \
-            --function-name dex-exchange-server \
-            --environment "Variables={NODE_ENV=production,JWT_SECRET=${{ secrets.JWT_SECRET }},FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }},FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }},FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }},FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }},MPESA_CONSUMER_KEY=${{ secrets.MPESA_CONSUMER_KEY }},MPESA_CONSUMER_SECRET=${{ secrets.MPESA_CONSUMER_SECRET }},MPESA_SHORTCODE=${{ secrets.MPESA_SHORTCODE }},MPESA_PASSKEY=${{ secrets.MPESA_PASSKEY }},CALLBACK_BASE_URL=${{ secrets.LAMBDA_API_URL }},BSC_RPC_URL=https://bsc-dataseed1.binance.org}" \
-            --region ap-south-1
+
+      - name: Update Lambda env vars
+        run: aws lambda update-function-configuration --function-name dex-exchange-server --environment file://lambda/env.json --region ap-south-1
 
   deploy-frontend:
     name: Deploy to GitHub Pages
@@ -47,15 +64,30 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Inject API URLs into index.html
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Inject secrets into index.html
+        env:
+          LAMBDA_API_URL:        ${{ secrets.LAMBDA_API_URL }}
+          FIREBASE_API_KEY:      ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN:  ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          FIREBASE_PROJECT_ID:   ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: node inject.js
+
+      - name: Verify injection worked
         run: |
-          sed -i "s|YOUR_LAMBDA_URL|${{ secrets.LAMBDA_API_URL }}|g" index.html
-          sed -i "s|YOUR_FIREBASE_API_KEY|${{ secrets.FIREBASE_API_KEY }}|g" index.html
-          sed -i "s|YOUR_FIREBASE_AUTH_DOMAIN|${{ secrets.FIREBASE_AUTH_DOMAIN }}|g" index.html
-          sed -i "s|YOUR_FIREBASE_DATABASE_URL|${{ secrets.FIREBASE_DATABASE_URL }}|g" index.html
-          sed -i "s|YOUR_FIREBASE_PROJECT_ID|${{ secrets.FIREBASE_PROJECT_ID }}|g" index.html
+          if grep -q '%%LAMBDA_API_URL%%' index.html; then
+            echo "ERROR: Placeholder still present in index.html"
+            exit 1
+          fi
+          echo "Injection verified"
+
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          exclude_assets: 'lambda/**,README.md,.env,.github/**'
+          exclude_assets: 'lambda/**,README.md,.env,.github/**,env.json,inject.js'
