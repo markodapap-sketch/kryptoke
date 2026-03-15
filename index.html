@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>KryptoKE — Trade Crypto with M-Pesa</title>
+<title>KryptoKE â€” Trade Crypto with M-Pesa</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -41,12 +41,12 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Scrollbar ─────────────────────────────────────────────── */
+/* â”€â”€ Scrollbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 ::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-/* ── Nav ───────────────────────────────────────────────────── */
+/* â”€â”€ Nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 nav {
   position: sticky; top: 0; z-index: 200;
   height: var(--nav-h);
@@ -102,7 +102,7 @@ nav {
 }
 .btn-sm { padding: 4px 10px; font-size: 11px; }
 
-/* ── KYC Banner ────────────────────────────────────────────── */
+/* â”€â”€ KYC Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .kyc-banner {
   background: rgba(245,197,24,0.07);
   border-bottom: 1px solid rgba(245,197,24,0.2);
@@ -111,7 +111,7 @@ nav {
   font-size: 12px; color: var(--yellow); gap: 12px;
 }
 
-/* ── Main layout ───────────────────────────────────────────── */
+/* â”€â”€ Main layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .app {
   display: grid;
   grid-template-columns: 220px 1fr 320px;
@@ -119,7 +119,7 @@ nav {
   overflow: hidden;
 }
 
-/* ── Token sidebar ─────────────────────────────────────────── */
+/* â”€â”€ Token sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .sidebar {
   background: var(--surface);
   border-right: 1px solid var(--border);
@@ -179,7 +179,7 @@ nav {
   font-size: 8px; padding: 1px 4px; border-radius: 2px; font-weight: 700;
 }
 
-/* ── Chart area ────────────────────────────────────────────── */
+/* â”€â”€ Chart area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .chart-area {
   display: flex; flex-direction: column; overflow: hidden;
   background: var(--bg);
@@ -227,7 +227,7 @@ nav {
 }
 #chart { flex: 1; min-height: 0; }
 
-/* ── Right panel ───────────────────────────────────────────── */
+/* â”€â”€ Right panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .right-panel {
   background: var(--surface);
   border-left: 1px solid var(--border);
@@ -244,7 +244,7 @@ nav {
 .panel-tab:hover { color: var(--text); }
 .panel-tab.active { color: var(--text); border-color: var(--yellow); }
 
-/* ── Swap form ─────────────────────────────────────────────── */
+/* â”€â”€ Swap form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .swap-form {
   padding: 14px; display: flex; flex-direction: column; gap: 10px;
   overflow-y: auto; flex: 1;
@@ -314,7 +314,7 @@ nav {
   font-weight: 600;
 }
 
-/* ── Buy with KES form ─────────────────────────────────────── */
+/* â”€â”€ Buy with KES form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .kes-buy-form {
   padding: 14px; display: flex; flex-direction: column; gap: 10px;
   overflow-y: auto; flex: 1;
@@ -327,7 +327,7 @@ nav {
 .kes-rate-label { font-size: 11px; color: var(--muted); }
 .kes-rate-val { font-family: var(--mono); font-size: 14px; color: var(--yellow); font-weight: 600; }
 
-/* ── Trades panel ──────────────────────────────────────────── */
+/* â”€â”€ Trades panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .trade-list-header {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
@@ -343,7 +343,7 @@ nav {
 }
 .trade-row:hover { background: var(--s2); }
 
-/* ── Modals ────────────────────────────────────────────────── */
+/* â”€â”€ Modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
@@ -419,7 +419,7 @@ nav {
 .wallet-name { font-weight: 600; font-size: 14px; }
 .wallet-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-/* ── Token select modal ────────────────────────────────────── */
+/* â”€â”€ Token select modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .token-modal-item {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 0; cursor: pointer; border-bottom: 1px solid var(--border);
@@ -427,7 +427,7 @@ nav {
 }
 .token-modal-item:hover { opacity: 0.75; }
 
-/* ── Toast ─────────────────────────────────────────────────── */
+/* â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toast {
   position: fixed; bottom: 20px; right: 20px; z-index: 999;
   background: var(--s3); border: 1px solid var(--border2);
@@ -440,7 +440,7 @@ nav {
 .toast.error   { border-color: var(--red);   color: var(--red); }
 .toast.info    { border-color: var(--blue);  color: var(--blue); }
 
-/* ── Mobile bottom nav ─────────────────────────────────────── */
+/* â”€â”€ Mobile bottom nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .mobile-nav {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -460,7 +460,7 @@ nav {
 .mobile-tab.active { color: var(--yellow); }
 .mobile-tab svg { width: 18px; height: 18px; }
 
-/* ── Spinner ───────────────────────────────────────────────── */
+/* â”€â”€ Spinner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .spinner {
   width: 16px; height: 16px; border-radius: 50%;
   border: 2px solid var(--border2);
@@ -469,7 +469,7 @@ nav {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Price pulse animation ─────────────────────────────────── */
+/* â”€â”€ Price pulse animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes pricePulse {
   0%   { opacity: 1; }
   50%  { opacity: 0.3; }
@@ -477,7 +477,7 @@ nav {
 }
 .price-updating { animation: pricePulse 0.5s ease; }
 
-/* ── Responsive ────────────────────────────────────────────── */
+/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 1024px) {
   .app { grid-template-columns: 0 1fr 0; }
   .sidebar, .right-panel { display: none; }
@@ -523,7 +523,7 @@ nav {
 
 <!-- KYC banner -->
 <div class="kyc-banner" id="kyc-banner" style="display:none">
-  <span>⚠️ Complete identity verification to unlock full trading limits.</span>
+  <span>âš ï¸ Complete identity verification to unlock full trading limits.</span>
   <button class="btn btn-sm btn-yellow">Verify Now</button>
 </div>
 
@@ -533,7 +533,7 @@ nav {
   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-search">
-      <input class="search-input" placeholder="Search tokens…" id="token-search" oninput="filterTokens(this.value)">
+      <input class="search-input" placeholder="Search tokensâ€¦" id="token-search" oninput="filterTokens(this.value)">
     </div>
     <div class="sidebar-tabs">
       <div class="s-tab active">All</div>
@@ -550,19 +550,19 @@ nav {
     <div class="market-bar" id="market-bar">
       <div class="pair-block">
         <div class="pair-name" id="pair-name">BNB/USDT</div>
-        <div class="pair-price" id="pair-price">—</div>
+        <div class="pair-price" id="pair-price">â€”</div>
       </div>
       <div class="market-stat">
         <div class="stat-label">KES Price</div>
-        <div class="stat-val" id="stat-kes">—</div>
+        <div class="stat-val" id="stat-kes">â€”</div>
       </div>
       <div class="market-stat">
         <div class="stat-label">24h Change</div>
-        <div class="stat-val" id="stat-change">—</div>
+        <div class="stat-val" id="stat-change">â€”</div>
       </div>
       <div class="market-stat">
         <div class="stat-label">Liquidity</div>
-        <div class="stat-val" id="stat-liq">—</div>
+        <div class="stat-val" id="stat-liq">â€”</div>
       </div>
       <div class="source-badges" id="source-badges">
         <span class="source-badge" id="badge-cg">CoinGecko</span>
@@ -593,28 +593,28 @@ nav {
       <div>
         <div class="swap-label">
           <span>You Pay</span>
-          <span id="balance-in" style="cursor:pointer" onclick="setMax()">Balance: —</span>
+          <span id="balance-in" style="cursor:pointer" onclick="setMax()">Balance: â€”</span>
         </div>
         <div class="token-input-wrap">
           <input class="token-input" id="amount-in" type="number" placeholder="0.00" oninput="onAmountChange()">
           <div class="token-select-row">
-            <button class="token-select-btn" onclick="openTokenSelect('in')" id="token-in-btn">BNB ▾</button>
+            <button class="token-select-btn" onclick="openTokenSelect('in')" id="token-in-btn">BNB â–¾</button>
             <button class="max-btn" onclick="setMax()">MAX</button>
           </div>
         </div>
       </div>
 
-      <div class="swap-arrow-btn" onclick="flipTokens()">⇅</div>
+      <div class="swap-arrow-btn" onclick="flipTokens()">â‡…</div>
 
       <div>
         <div class="swap-label">
           <span>You Receive</span>
-          <span id="balance-out">Balance: —</span>
+          <span id="balance-out">Balance: â€”</span>
         </div>
         <div class="token-input-wrap">
           <input class="token-input" id="amount-out" type="number" placeholder="0.00" readonly>
           <div class="token-select-row">
-            <button class="token-select-btn" onclick="openTokenSelect('out')" id="token-out-btn">USDT ▾</button>
+            <button class="token-select-btn" onclick="openTokenSelect('out')" id="token-out-btn">USDT â–¾</button>
           </div>
         </div>
       </div>
@@ -630,11 +630,11 @@ nav {
       </div>
 
       <div class="route-info" id="route-info" style="display:none">
-        <div class="route-row"><span>Rate</span><span id="route-rate">—</span></div>
-        <div class="route-row"><span>Price Impact</span><span id="route-impact">—</span></div>
-        <div class="route-row"><span>Min Received</span><span id="route-min">—</span></div>
-        <div class="route-row"><span>Route via</span><span id="route-dex">—</span></div>
-        <div class="route-row"><span>Fee (0.25%)</span><span id="route-fee">—</span></div>
+        <div class="route-row"><span>Rate</span><span id="route-rate">â€”</span></div>
+        <div class="route-row"><span>Price Impact</span><span id="route-impact">â€”</span></div>
+        <div class="route-row"><span>Min Received</span><span id="route-min">â€”</span></div>
+        <div class="route-row"><span>Route via</span><span id="route-dex">â€”</span></div>
+        <div class="route-row"><span>Fee (0.25%)</span><span id="route-fee">â€”</span></div>
       </div>
 
       <button class="btn btn-green" id="swap-btn" onclick="doSwap()" style="width:100%;padding:13px;font-size:14px">
@@ -648,10 +648,10 @@ nav {
       <div class="kes-rate-display">
         <div>
           <div class="kes-rate-label">Current Rate</div>
-          <div class="kes-rate-val" id="kes-rate-val">1 USDT = KES —</div>
+          <div class="kes-rate-val" id="kes-rate-val">1 USDT = KES â€”</div>
         </div>
         <div style="font-size:10px;color:var(--muted);text-align:right">
-          Live rate<br><span id="kes-rate-source">—</span>
+          Live rate<br><span id="kes-rate-source">â€”</span>
         </div>
       </div>
 
@@ -660,19 +660,19 @@ nav {
         <div class="token-input-wrap">
           <input class="token-input" id="kes-buy-amount" type="number" placeholder="500" oninput="calcKesConversion()">
           <div class="token-select-row">
-            <span style="font-size:13px;color:var(--muted);font-family:var(--mono)">KES 🇰🇪</span>
+            <span style="font-size:13px;color:var(--muted);font-family:var(--mono)">KES ðŸ‡°ðŸ‡ª</span>
           </div>
         </div>
       </div>
 
-      <div style="text-align:center;color:var(--muted);font-size:18px">⬇</div>
+      <div style="text-align:center;color:var(--muted);font-size:18px">â¬‡</div>
 
       <div>
         <div class="swap-label"><span>You Receive (USDT)</span></div>
         <div class="token-input-wrap">
           <input class="token-input" id="kes-buy-out" type="number" placeholder="0.00" readonly>
           <div class="token-select-row">
-            <span style="font-size:13px;color:var(--muted);font-family:var(--mono)">USDT 💵</span>
+            <span style="font-size:13px;color:var(--muted);font-family:var(--mono)">USDT ðŸ’µ</span>
           </div>
         </div>
       </div>
@@ -720,12 +720,12 @@ nav {
   </div>
 </div>
 
-<!-- ── DEPOSIT MODAL ──────────────────────────────────────── -->
+<!-- â”€â”€ DEPOSIT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal-overlay" id="modal-deposit">
   <div class="modal">
     <div class="modal-title">
       Deposit Funds
-      <button class="modal-close" onclick="closeModal('deposit')">×</button>
+      <button class="modal-close" onclick="closeModal('deposit')">Ã—</button>
     </div>
     <div class="tab-row">
       <button class="tab-btn active" onclick="switchTab('dep','mpesa',this)">M-Pesa</button>
@@ -740,13 +740,13 @@ nav {
         <input class="form-input" id="mpesa-phone" type="tel" placeholder="0712 345 678">
       </div>
       <div class="form-group">
-        <label class="form-label">Amount (KES) — min KES 10</label>
+        <label class="form-label">Amount (KES) â€” min KES 10</label>
         <input class="form-input" id="mpesa-amount" type="number" min="10" placeholder="500" oninput="previewDeposit()">
       </div>
       <div id="deposit-preview" style="margin-bottom:12px;display:none">
         <div class="kes-rate-display">
           <span class="kes-rate-label">You will receive</span>
-          <span class="kes-rate-val" id="deposit-usdt-preview">≈ 0 USDT</span>
+          <span class="kes-rate-val" id="deposit-usdt-preview">â‰ˆ 0 USDT</span>
         </div>
       </div>
       <button class="btn btn-yellow" style="width:100%;padding:12px" onclick="initMpesaDeposit()">Send STK Push</button>
@@ -758,21 +758,21 @@ nav {
       <div class="form-group">
         <label class="form-label">Your BSC Deposit Address</label>
         <div class="address-box" id="deposit-address" onclick="copyAddress()">Login to see your address</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:6px">Click to copy • BSC (BEP-20) only</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">Click to copy â€¢ BSC (BEP-20) only</div>
       </div>
     </div>
 
     <div id="dep-connect" style="display:none">
       <div class="wallet-option" onclick="connectMetaMask()">
-        <div class="wallet-icon">🦊</div>
+        <div class="wallet-icon">ðŸ¦Š</div>
         <div><div class="wallet-name">MetaMask</div><div class="wallet-desc">Browser extension wallet</div></div>
       </div>
       <div class="wallet-option" onclick="connectTrustWallet()">
-        <div class="wallet-icon">🛡️</div>
+        <div class="wallet-icon">ðŸ›¡ï¸</div>
         <div><div class="wallet-name">Trust Wallet</div><div class="wallet-desc">Mobile & extension</div></div>
       </div>
       <div class="wallet-option" onclick="showToast('WalletConnect coming soon','info')">
-        <div class="wallet-icon">🔗</div>
+        <div class="wallet-icon">ðŸ”—</div>
         <div><div class="wallet-name">WalletConnect</div><div class="wallet-desc">Scan with any mobile wallet</div></div>
       </div>
       <div id="connect-status" style="margin-top:8px"></div>
@@ -780,12 +780,12 @@ nav {
   </div>
 </div>
 
-<!-- ── AUTH MODAL ─────────────────────────────────────────── -->
+<!-- â”€â”€ AUTH MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal-overlay" id="modal-auth">
   <div class="modal">
     <div class="modal-title">
       <span id="auth-title">Welcome back</span>
-      <button class="modal-close" onclick="closeModal('auth')">×</button>
+      <button class="modal-close" onclick="closeModal('auth')">Ã—</button>
     </div>
     <div class="tab-row">
       <button class="tab-btn active" onclick="switchTab('auth','login',this)">Login</button>
@@ -794,7 +794,7 @@ nav {
 
     <div id="auth-login">
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="login-email" type="email" placeholder="you@email.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-password" type="password" placeholder="••••••••"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-password" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"></div>
       <button class="btn btn-yellow" style="width:100%;padding:12px" onclick="doLogin()">Login</button>
       <div id="login-status" style="margin-top:10px;display:none"></div>
     </div>
@@ -802,18 +802,18 @@ nav {
     <div id="auth-register" style="display:none">
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="you@email.com"></div>
       <div class="form-group"><label class="form-label">Safaricom Phone</label><input class="form-input" id="reg-phone" type="tel" placeholder="0712 345 678"></div>
-      <div class="form-group"><label class="form-label">Password (min 8 chars)</label><input class="form-input" id="reg-password" type="password" placeholder="••••••••"></div>
+      <div class="form-group"><label class="form-label">Password (min 8 chars)</label><input class="form-input" id="reg-password" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"></div>
       <button class="btn btn-yellow" style="width:100%;padding:12px" onclick="doRegister()">Create Account</button>
       <div id="reg-status" style="margin-top:10px;display:none"></div>
     </div>
   </div>
 </div>
 
-<!-- ── TOKEN SELECT MODAL ─────────────────────────────────── -->
+<!-- â”€â”€ TOKEN SELECT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal-overlay" id="modal-token-select">
   <div class="modal" style="max-height:80vh;display:flex;flex-direction:column">
-    <div class="modal-title">Select Token <button class="modal-close" onclick="closeModal('token-select')">×</button></div>
-    <input class="search-input" id="tok-search" placeholder="Search or paste address…" oninput="filterModalTokens(this.value)" style="margin-bottom:14px">
+    <div class="modal-title">Select Token <button class="modal-close" onclick="closeModal('token-select')">Ã—</button></div>
+    <input class="search-input" id="tok-search" placeholder="Search or paste addressâ€¦" oninput="filterModalTokens(this.value)" style="margin-bottom:14px">
     <div id="tok-list" style="overflow-y:auto;flex:1"></div>
   </div>
 </div>
@@ -822,7 +822,7 @@ nav {
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const API = 'https://xpdd140367.execute-api.ap-south-1.amazonaws.com/prod';   // replaced at deploy time by GitHub Actions
 const FB_CONFIG = {
   apiKey:      'AIzaSyDfGRHGt6gg0Fs76XLRmGqGMD3qZTgg12E',
@@ -831,7 +831,7 @@ const FB_CONFIG = {
   projectId:   'manmachine-bd039',
 };
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const S = {
   tokens:       [],
   selected:     null,
@@ -847,7 +847,7 @@ const S = {
   priceInterval: null,
 };
 
-// ─── BOOT ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ BOOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.addEventListener('load', () => {
   initChart();
   loadTokens();
@@ -856,7 +856,7 @@ window.addEventListener('load', () => {
   if (S.token) restoreSession();
 });
 
-// ─── RATE ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ RATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function fetchRate() {
   try {
     const r = await api('/api/wallet/rate');
@@ -871,7 +871,7 @@ async function fetchRate() {
   } catch {}
 }
 
-// ─── CHART ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function initChart() {
   const el = document.getElementById('chart');
   S.chart = LightweightCharts.createChart(el, {
@@ -906,7 +906,7 @@ function setChartInterval(iv, btn) {
   if (S.selected) loadChart(S.selected.address, iv === '1d' ? 'day' : 'hour');
 }
 
-// ─── TOKENS ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ TOKENS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadTokens() {
   try {
     const r = await api('/api/tokens');
@@ -946,7 +946,7 @@ function renderTokenList(tokens) {
   el.innerHTML = tokens.map(t => {
     const chg = t.change24h;
     const chgClass = chg == null ? '' : chg >= 0 ? 'up' : 'dn';
-    const chgStr   = chg == null ? '—' : (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    const chgStr   = chg == null ? 'â€”' : (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
     const pKes     = (t.price || 0) * S.kesPerUsd;
     return `
     <div class="token-item ${S.selected?.address === t.address ? 'active' : ''}"
@@ -973,7 +973,7 @@ function filterTokens(q) {
 async function selectToken(t) {
   S.selected = t;
   S.tokenOut = { symbol: t.symbol, address: t.address, decimals: t.decimals || 18 };
-  document.getElementById('token-out-btn').textContent = t.symbol + ' ▾';
+  document.getElementById('token-out-btn').textContent = t.symbol + ' â–¾';
   document.getElementById('pair-name').textContent = `${t.symbol}/USDT`;
   renderTokenList(S.tokens);
   loadChart(t.address);
@@ -1016,7 +1016,7 @@ function updateMarketBar(t) {
   }
 }
 
-// ─── SWAP ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ SWAP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let qTimer = null;
 function onAmountChange() {
   clearTimeout(qTimer);
@@ -1055,7 +1055,7 @@ async function doSwap() {
   if (!amtIn) return showToast('Enter an amount', 'error');
 
   const btn = document.getElementById('swap-btn');
-  btn.textContent = 'Building…'; btn.disabled = true;
+  btn.textContent = 'Buildingâ€¦'; btn.disabled = true;
 
   try {
     const r = await api('/api/trade/build', {
@@ -1080,7 +1080,7 @@ async function doSwap() {
       headers: { Authorization: 'Bearer ' + S.token },
       body: JSON.stringify({ tradeId: r.tradeId, txHash, amountOut: document.getElementById('amount-out').value }),
     });
-    showToast('Swap confirmed ✓', 'success');
+    showToast('Swap confirmed âœ“', 'success');
   } catch(e) {
     showToast(e.message || 'Swap failed', 'error');
   } finally {
@@ -1090,8 +1090,8 @@ async function doSwap() {
 
 function flipTokens() {
   [S.tokenIn, S.tokenOut] = [S.tokenOut, S.tokenIn];
-  document.getElementById('token-in-btn').textContent  = S.tokenIn.symbol  + ' ▾';
-  document.getElementById('token-out-btn').textContent = S.tokenOut.symbol + ' ▾';
+  document.getElementById('token-in-btn').textContent  = S.tokenIn.symbol  + ' â–¾';
+  document.getElementById('token-out-btn').textContent = S.tokenOut.symbol + ' â–¾';
   document.getElementById('amount-in').value  = document.getElementById('amount-out').value;
   document.getElementById('amount-out').value = '';
   fetchQuote();
@@ -1103,9 +1103,9 @@ function setSlippage(v, btn) {
   btn.classList.add('active');
 }
 
-function setMax() { /* fetch balance → set */ }
+function setMax() { /* fetch balance â†’ set */ }
 
-// ─── KES BUY ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ KES BUY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function calcKesConversion() {
   const kes = parseFloat(document.getElementById('kes-buy-amount').value) || 0;
   const usdt = kes / S.kesPerUsd;
@@ -1119,9 +1119,9 @@ async function initKesBuy() {
   if (!phone || !amount) return showAlert('kes-buy-status', 'Enter phone and amount', 'err');
   if (amount < 10) return showAlert('kes-buy-status', 'Minimum KES 10', 'err');
 
-  document.getElementById('kes-buy-btn').textContent = 'Sending…';
+  document.getElementById('kes-buy-btn').textContent = 'Sendingâ€¦';
   document.getElementById('kes-buy-btn').disabled = true;
-  showAlert('kes-buy-status', 'Sending STK Push to your phone…', 'warn');
+  showAlert('kes-buy-status', 'Sending STK Push to your phoneâ€¦', 'warn');
 
   try {
     const r = await api('/api/mpesa/deposit', {
@@ -1129,7 +1129,7 @@ async function initKesBuy() {
       headers: { Authorization: 'Bearer ' + S.token },
       body: JSON.stringify({ phone, amount }),
     });
-    showAlert('kes-buy-status', `✓ STK sent! Enter your M-Pesa PIN. Ref: ${r.txId?.slice(0,8).toUpperCase()}`, 'success');
+    showAlert('kes-buy-status', `âœ“ STK sent! Enter your M-Pesa PIN. Ref: ${r.txId?.slice(0,8).toUpperCase()}`, 'success');
     pollDeposit(r.txId);
   } catch(e) {
     showAlert('kes-buy-status', e.message, 'err');
@@ -1144,28 +1144,28 @@ function previewDeposit() {
   const kes = parseFloat(document.getElementById('mpesa-amount').value) || 0;
   if (kes >= 10) {
     const usdt = kes / S.kesPerUsd;
-    document.getElementById('deposit-usdt-preview').textContent = `≈ ${usdt.toFixed(4)} USDT`;
+    document.getElementById('deposit-usdt-preview').textContent = `â‰ˆ ${usdt.toFixed(4)} USDT`;
     document.getElementById('deposit-preview').style.display = 'block';
   } else {
     document.getElementById('deposit-preview').style.display = 'none';
   }
 }
 
-// ─── M-PESA ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ M-PESA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function initMpesaDeposit() {
   if (!S.token) { closeModal('deposit'); openModal('auth'); return; }
   const phone  = document.getElementById('mpesa-phone').value;
   const amount = parseFloat(document.getElementById('mpesa-amount').value);
   if (!phone || !amount) return showAlert('mpesa-status', 'Enter phone and amount', 'err');
 
-  showAlert('mpesa-status', 'Sending STK Push…', 'warn');
+  showAlert('mpesa-status', 'Sending STK Pushâ€¦', 'warn');
   try {
     const r = await api('/api/mpesa/deposit', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + S.token },
       body: JSON.stringify({ phone, amount }),
     });
-    showAlert('mpesa-status', `✓ Check your phone for M-Pesa PIN prompt. Ref: ${r.txId?.slice(0,8).toUpperCase()}`, 'success');
+    showAlert('mpesa-status', `âœ“ Check your phone for M-Pesa PIN prompt. Ref: ${r.txId?.slice(0,8).toUpperCase()}`, 'success');
     pollDeposit(r.txId);
   } catch(e) {
     showAlert('mpesa-status', e.message, 'err');
@@ -1180,9 +1180,9 @@ async function pollDeposit(txId) {
       const r = await api(`/api/mpesa/status/${txId}`, { headers: { Authorization: 'Bearer ' + S.token } });
       if (r.status === 'completed') {
         clearInterval(poll);
-        showAlert('mpesa-status', `✓ KES ${r.amount} deposited → ${r.usdtCredited?.toFixed(4)} USDT credited`, 'success');
-        showAlert('kes-buy-status', `✓ KES ${r.amount} deposited → ${r.usdtCredited?.toFixed(4)} USDT credited`, 'success');
-        showToast(`KES ${r.amount} → ${r.usdtCredited?.toFixed(4)} USDT ✓`, 'success');
+        showAlert('mpesa-status', `âœ“ KES ${r.amount} deposited â†’ ${r.usdtCredited?.toFixed(4)} USDT credited`, 'success');
+        showAlert('kes-buy-status', `âœ“ KES ${r.amount} deposited â†’ ${r.usdtCredited?.toFixed(4)} USDT credited`, 'success');
+        showToast(`KES ${r.amount} â†’ ${r.usdtCredited?.toFixed(4)} USDT âœ“`, 'success');
         fetchKesBalance();
       } else if (r.status === 'failed') {
         clearInterval(poll);
@@ -1199,12 +1199,12 @@ async function fetchKesBalance() {
     const r = await api('/api/wallet/info', { headers: { Authorization: 'Bearer ' + S.token } });
     const kes  = r.kesBalance  || 0;
     const usdt = r.usdtBalance || 0;
-    document.getElementById('kes-display').textContent = `KES ${kes.toLocaleString()} · ${usdt.toFixed(2)} USDT`;
+    document.getElementById('kes-display').textContent = `KES ${kes.toLocaleString()} Â· ${usdt.toFixed(2)} USDT`;
     document.getElementById('kes-display').style.display = 'block';
   } catch {}
 }
 
-// ─── AUTH ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ AUTH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function doLogin() {
   const email = document.getElementById('login-email').value;
   const pass  = document.getElementById('login-password').value;
@@ -1213,7 +1213,7 @@ async function doLogin() {
     const r = await api('/api/auth/login', { method:'POST', body: JSON.stringify({email, password:pass}) });
     saveSession(r);
     closeModal('auth');
-    showToast('Logged in ✓', 'success');
+    showToast('Logged in âœ“', 'success');
   } catch(e) { showAlert('login-status', e.message, 'err'); }
 }
 
@@ -1228,7 +1228,7 @@ async function doRegister() {
     saveSession(r);
     closeModal('auth');
     // Show deposit address (NOT a private key - this is an HD-derived public address)
-    showToast(`Account created! Deposit address: ${r.user.depositAddress?.slice(0,10)}…`, 'success');
+    showToast(`Account created! Deposit address: ${r.user.depositAddress?.slice(0,10)}â€¦`, 'success');
   } catch(e) { showAlert('reg-status', e.message, 'err'); }
 }
 
@@ -1267,7 +1267,7 @@ function onAuthBtnClick() {
   }
 }
 
-// ─── WALLET CONNECT ───────────────────────────────────────────────────────────
+// â”€â”€â”€ WALLET CONNECT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function connectMetaMask() {
   if (!window.ethereum) return showToast('MetaMask not found', 'error');
   try {
@@ -1282,15 +1282,15 @@ async function connectMetaMask() {
   }
   const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
   S.walletAddr = accounts[0];
-  document.getElementById('auth-btn').textContent = S.walletAddr.slice(0,6) + '…' + S.walletAddr.slice(-4);
+  document.getElementById('auth-btn').textContent = S.walletAddr.slice(0,6) + 'â€¦' + S.walletAddr.slice(-4);
   document.getElementById('swap-btn').textContent = 'Swap';
   closeModal('deposit');
-  showToast('MetaMask connected ✓', 'success');
+  showToast('MetaMask connected âœ“', 'success');
 }
 
 async function connectTrustWallet() { await connectMetaMask(); }
 
-// ─── REALTIME TRADES ─────────────────────────────────────────────────────────
+// â”€â”€â”€ REALTIME TRADES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let fbApp, fbDb;
 function initFirebase() {
   if (fbApp) return;
@@ -1316,7 +1316,7 @@ function renderTrades(trades) {
   }).join('');
 }
 
-// ─── TOKEN SELECT MODAL ───────────────────────────────────────────────────────
+// â”€â”€â”€ TOKEN SELECT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let tokTarget = 'out';
 function openTokenSelect(t) {
   tokTarget = t; filterModalTokens(''); openModal('token-select');
@@ -1335,12 +1335,12 @@ function filterModalTokens(q) {
 }
 function pickToken(t) {
   const obj = { symbol: t.symbol, address: t.address, decimals: t.decimals||18 };
-  if (tokTarget === 'in') { S.tokenIn  = obj; document.getElementById('token-in-btn').textContent  = t.symbol + ' ▾'; }
-  else                    { S.tokenOut = obj; document.getElementById('token-out-btn').textContent = t.symbol + ' ▾'; selectToken(t); }
+  if (tokTarget === 'in') { S.tokenIn  = obj; document.getElementById('token-in-btn').textContent  = t.symbol + ' â–¾'; }
+  else                    { S.tokenOut = obj; document.getElementById('token-out-btn').textContent = t.symbol + ' â–¾'; selectToken(t); }
   closeModal('token-select'); fetchQuote();
 }
 
-// ─── MOBILE NAV ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ MOBILE NAV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function mobilePage(page) {
   document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
   const sidebar     = document.getElementById('sidebar');
@@ -1353,7 +1353,7 @@ function mobilePage(page) {
   else { document.getElementById('mob-chart').classList.add('active'); }
 }
 
-// ─── PANELS ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ PANELS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function switchPanel(name, btn) {
   ['swap','buy','trades'].forEach(p => {
     document.getElementById('panel-'+p).style.display = p === name ? (p==='trades'?'block':'flex') : 'none';
@@ -1385,10 +1385,10 @@ function showPage(p) {
 function copyAddress() {
   const t = document.getElementById('deposit-address').textContent;
   navigator.clipboard.writeText(t);
-  showToast('Address copied ✓', 'success');
+  showToast('Address copied âœ“', 'success');
 }
 
-// ─── UTILS ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ UTILS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function api(path, opts = {}) {
   const res = await fetch(API + path, {
     ...opts,
