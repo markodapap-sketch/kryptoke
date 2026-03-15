@@ -17,29 +17,12 @@ jobs:
 
       - name: Install dependencies
         working-directory: lambda
-        run: npm install
+        run: npm install --production
 
-      - name: Zip code + node_modules
+      - name: Zip for Lambda
+        working-directory: lambda
         run: |
-          cd lambda
-          zip -r function.zip \
-            server.js \
-            package.json \
-            package-lock.json \
-            node_modules \
-            routes/auth.js \
-            routes/trade.js \
-            routes/tokens.js \
-            routes/market.js \
-            routes/mpesa.js \
-            routes/wallet.js \
-            routes/sweep.js \
-            routes/withdraw.js \
-            services/bsc.js \
-            services/firebase.js \
-            services/mpesa.js \
-            services/forex.js \
-            middleware/auth.js
+          zip -r ../function.zip . --exclude "*.zip" --exclude "env.json"
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -48,7 +31,7 @@ jobs:
           aws-region: ap-south-1
 
       - name: Upload to S3
-        run: aws s3 cp lambda/function.zip s3://oda-pap-lambda-deploy/dex-function.zip --region ap-south-1
+        run: aws s3 cp function.zip s3://oda-pap-lambda-deploy/dex-function.zip --region ap-south-1
 
       - name: Deploy to Lambda
         run: aws lambda update-function-code --function-name dex-exchange-server --s3-bucket oda-pap-lambda-deploy --s3-key dex-function.zip --region ap-south-1
@@ -57,7 +40,7 @@ jobs:
         run: aws lambda update-function-configuration --function-name dex-exchange-server --environment file://lambda/env.json --region ap-south-1
 
   deploy-frontend:
-    name: Deploy to GitHub Pages
+    name: Deploy Frontend
     runs-on: ubuntu-latest
     needs: deploy-lambda
     permissions:
@@ -78,16 +61,16 @@ jobs:
           FIREBASE_PROJECT_ID:   ${{ secrets.FIREBASE_PROJECT_ID }}
         run: node inject.js
 
-      - name: Verify injection worked
+      - name: Verify injection
         run: |
           if grep -q '%%LAMBDA_API_URL%%' index.html; then
-            echo "ERROR: Placeholder still present in index.html"
+            echo "ERROR: Placeholder not replaced"
             exit 1
           fi
-          echo "Injection verified"
+          echo "OK - placeholders replaced"
 
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          exclude_assets: 'lambda/**,README.md,.env,.github/**,env.json,inject.js'
+          exclude_assets: 'lambda/**,README.md,.env,.github/**,env.json,inject.js,function.zip'
