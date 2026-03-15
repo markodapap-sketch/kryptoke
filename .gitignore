@@ -1,0 +1,10 @@
+node_modules/
+lambda/node_modules/
+lambda/env.json
+lambda/function.zip
+.env
+env.json
+manmachine-bd039-firebase-adminsdk-odse0-51d98f4290.json
+package-lock.json
+generate.js
+server.md
